@@ -1,6 +1,7 @@
 import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
 
+import six
 from google.cloud import language_v1beta2
 from google.cloud.language_v1beta2 import enums
 from google.cloud.language_v1beta2 import types
