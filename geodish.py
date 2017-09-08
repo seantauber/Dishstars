@@ -16,17 +16,15 @@ class GeoDish:
 	def getDishes(self, nearLocation):
 		'''
 		'''
+		updatedVenues = []
 		self.venues = self.getRestaurants(nearLocation)
 		for venue in self.venues:
 			dishes = self.getMenu(venue)
-			tips = self.getTips(venue)
-			venue.update({'dishes': dishes, 'tips': tips})
-
-		# remove venues with no dishes listed in menu
-		n = len(self.venues)
-		for i in range(n):
-			if self.venues[i]['dishes'] == []:
-				self.venues.pop(i)
+			if len(dishes) > 0:
+				tips = self.getTips(venue)
+				venue.update({'dishes': dishes, 'tips': tips})
+				updatedVenues.append(venue)
+		self.venues = updatedVenues
 
 
 	def getRestaurants(self, nearLocation):
