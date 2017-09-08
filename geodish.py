@@ -110,7 +110,7 @@ class GeoDish:
 
 
 
-	def entity_sentiment_text(text, verbose=False):
+	def entity_sentiment_text(self, text, verbose=False):
 		"""Detects entity sentiment in the provided text."""
 		client = language_v1beta2.LanguageServiceClient()
 
