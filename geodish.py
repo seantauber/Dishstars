@@ -145,6 +145,22 @@ class GeoDish:
 		return result
 
 
+	def entitySentimentResultToJsonCompatible(self, result):
+		'''
+		'''
+		r = []
+		for entity in result.entities:
+			d = {}
+			d['name'] = entity.name
+			d['salience'] = entity.salience
+			d['score'] = entity.sentiment.score
+			d['magnitude'] = entity.sentiment.magnitude
+			r.append(d)
+
+		return r
+
+
+
 	def printEntitySentimentResult(self, result):
 		'''
 		'''
