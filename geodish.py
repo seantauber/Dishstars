@@ -61,13 +61,17 @@ class GeoDish:
 		
 		menuItems = []
 
-		def getMenuItem(d):
-			if "menuId" in d or "sectionId" in d:
+		def getMenuItem(d, sectionName=None):
+			if 'menuId' in d or 'sectionId' in d:
+				sectionName = None
+				if 'name' in d:
+					sectionName = d['name']
 				for item in d['entries']['items']:
-					getMenuItem(item)
-			elif "entryId" in d:
+					getMenuItem(item, sectionName=sectionName)
+			elif 'entryId' in d:
 				menuItem = {}
 				menuItem['name'] = d['name']
+				menuItem['menuSection'] = sectionName
 				if 'description' in d:
 					menuItem['description'] = d['description']
 				if 'price' in d:
