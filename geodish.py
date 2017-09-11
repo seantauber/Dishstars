@@ -61,7 +61,7 @@ class GeoDish:
 		'''
 		# check cache
 		cachedPath = 'cache/menu/%s' % venue['id']
-		if os.path.exists(cachedPath):
+		if os.path.isfile(cachedPath):
 			# get menu from cache
 			f = open(cachedPath, 'rb')
 			menu = json.load(f)
@@ -117,7 +117,7 @@ class GeoDish:
 		'''
 		# check cache
 		cachedPath = 'cache/tips/%s' % venue['id']
-		if os.path.exists(cachedPath):
+		if os.path.isfile(cachedPath):
 			# get cached tips
 			f = open(cachedPath, 'rb')
 			tips = json.load(f)
