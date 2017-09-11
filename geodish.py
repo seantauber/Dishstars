@@ -67,13 +67,13 @@ class GeoDish:
 		
 		menuItems = []
 
-		def getMenuItem(d, sectionPath=None):
+		def getMenuItem(d, sectionPath=""):
 			if 'menuId' in d or 'sectionId' in d:
-				parentName = None
 				if 'name' in d:
-					parentName = d['name']
+					if sectionPath != "":
+						sectionPath += " | %s" % d['name']
 				for item in d['entries']['items']:
-					getMenuItem(item, sectionPath=sectionPath + " | " + parentName)
+					getMenuItem(item, sectionPath=sectionPath)
 			elif 'entryId' in d:
 				menuItem = {}
 				menuItem['name'] = d['name']
@@ -89,6 +89,7 @@ class GeoDish:
 			for menu in menuDict['menu']['menus']['items']:
 				getMenuItem(menu)
 		except:
+			raise
 			return []
 
 		return menuItems
