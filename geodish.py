@@ -20,6 +20,7 @@ class GeoDish:
 	def getDishes(self, nearLocation):
 		'''
 		'''
+		self.location = nearLocation
 		updatedVenues = []
 		self.venues = self.getRestaurants(nearLocation)
 		for venue in self.venues:
@@ -35,6 +36,25 @@ class GeoDish:
 		'''
 		for venue in self.venues:
 			self.analyzeReviewSentiment(venue)
+
+
+	def save(self):
+		'''
+		'''
+		fname = 'saved_locations/%s.json' % self.location
+		f = open(fname, 'wb')
+		json.dump(self.venues, f)
+		f.close()
+
+
+	def load(self, location):
+		'''
+		'''
+		self.location = location
+		fname = 'saved_locations/%s.json' % self.location
+		f = open(fname, 'rb')
+		self.venues = json.load(f)
+		f.close()
 
 
 	def getRestaurants(self, nearLocation):
