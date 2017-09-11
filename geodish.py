@@ -28,6 +28,12 @@ class GeoDish:
 				updatedVenues.append(venue)
 		self.venues = updatedVenues
 
+	def entitySentimentAnalysis(self):
+		'''
+		'''
+		for venue in self.venues:
+			self.analyzeReviewSentiment(venue)
+
 
 	def getRestaurants(self, nearLocation):
 		'''
@@ -110,8 +116,8 @@ class GeoDish:
 		'''
 		'''
 		tipText = self.tipText(venue['tips'])
-		result = self.entity_sentiment_text(tipText)
-		venue['rawSentimentResult'] = result
+		result = self.entitySentimentText(tipText)
+		venue['entitySentiment'] = self.entitySentimentResultToJsonCompatible(result)
 
 
 
