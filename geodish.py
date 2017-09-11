@@ -1,4 +1,5 @@
 import sys, os
+import json
 import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
 
@@ -130,7 +131,7 @@ class GeoDish:
 			f = open(cachedPath, 'wb')
 			json.dump(tips, f)
 			f.close()
-			
+
 		return tips
 
 	def tipText(self, tips):
