@@ -12,6 +12,7 @@ class GeoDish:
 	def __init__(self):
 		self.fsClient = foursquare.Foursquare(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 		self.fsExploreParams = {'section': 'food', 'limit': 500, 'openNow': 0}
+		self.apiCallCount = 0
 
 
 	def getDishes(self, nearLocation):
@@ -23,7 +24,7 @@ class GeoDish:
 			dishes = self.getMenu(venue)
 			if len(dishes) > 0:
 				tips = self.getTips(venue)
-				venue.update({'dishes': dishes, 'tips': tips})
+				venue.update({u'dishes': dishes, u'tips': tips})
 				updatedVenues.append(venue)
 		self.venues = updatedVenues
 
@@ -110,7 +111,7 @@ class GeoDish:
 
 
 
-	def entity_sentiment_text(self, text, verbose=False):
+	def entitySentimentText(self, text, verbose=False):
 		"""Detects entity sentiment in the provided text."""
 		client = language_v1beta2.LanguageServiceClient()
 
@@ -142,6 +143,23 @@ class GeoDish:
 				print(u'Sentiment: {}\n'.format(entity.sentiment))
 
 		return result
+
+
+	def printEntitySentimentResult(self, result):
+		'''
+		'''
+		for entity in result.entities:
+		print('Mentions: ')
+		print(u'Name: "{}"'.format(entity.name))
+		for mention in entity.mentions:
+			print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
+			print(u'  Content : {}'.format(mention.text.content))
+			print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
+			print(u'  Sentiment : {}'.format(mention.sentiment.score))
+			print(u'  Type : {}'.format(mention.type))
+		print(u'Salience: {}'.format(entity.salience))
+		print(u'Sentiment: {}\n'.format(entity.sentiment))
+
 
 
 
