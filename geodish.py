@@ -102,7 +102,7 @@ class GeoDish:
 
 
 		try:
-			if menuDuct['menu']['menus']['count'] > 0:
+			if menuDict['menu']['menus']['count'] > 0:
 				for menu in menuDict['menu']['menus']['items']:
 					getMenuItem(menu)
 		except:
