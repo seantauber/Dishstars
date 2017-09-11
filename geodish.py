@@ -148,9 +148,23 @@ class GeoDish:
 	def analyzeReviewSentiment(self, venue):
 		'''
 		'''
-		tipText = self.tipText(venue['tips'])
-		result = self.entitySentimentText(tipText)
-		venue['entitySentiment'] = self.entitySentimentResultToJsonCompatible(result)
+		# check cache
+		cachedPath = 'cache/entity/%s' % venue['id']
+		if os.path.isfile(cachedPath):
+			# get cached entities
+			f = open(cachedPath, 'rb')
+			entitySentiment = json.load(f)
+			f.close()
+			venue['entitySentiment'] = entitySentiment
+		else:
+			tipText = self.tipText(venue['tips'])
+			result = self.entitySentimentText(tipText)
+			venue['entitySentiment'] = self.entitySentimentResultToJsonCompatible(result)
+
+			# cache entity sentiment results
+			f = open(cachedPath, 'wb')
+			json.dump(venue['entitySentiment'], f)
+			f.close()
 
 
 
