@@ -1,7 +1,8 @@
+import sys, os
 import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
 
-import six, sys
+import six
 from google.cloud import language_v1beta2
 from google.cloud.language_v1beta2 import enums
 from google.cloud.language_v1beta2 import types
@@ -57,7 +58,19 @@ class GeoDish:
 	def getMenu(self, venue):
 		'''
 		'''
-		menu = self.fsClient.venues.menu(venue['id'])
+		# check cache
+		cachedPath = 'cache/menu/%s' % venue['id']
+		if os.path.exists(cachedPath):
+			# get menu from cache
+			f = open(cachedPath, 'rb')
+			menu = json.load(f)
+			f.close()
+		else:
+			menu = self.fsClient.venues.menu(venue['id'])
+			# cache the menu
+			f = open(cachedPath, 'wb')
+			json.dump(menu, f)
+			f.close()
 		menu = self.parseMenu(menu)
 		return menu
 
@@ -72,6 +85,8 @@ class GeoDish:
 				if 'name' in d:
 					if sectionPath != "":
 						sectionPath += " | %s" % d['name']
+					else:
+						sectionPath = d['name']
 				for item in d['entries']['items']:
 					getMenuItem(item, sectionPath=sectionPath)
 			elif 'entryId' in d:
@@ -99,8 +114,23 @@ class GeoDish:
 	def getTips(self, venue):
 		'''
 		'''
-		r = self.fsClient.venues.tips(venue['id'], params={'limit': 500})
-		tips = r['tips']['items']
+		# check cache
+		cachedPath = 'cache/tips/%s' % venue['id']
+		if os.path.exists(cachedPath):
+			# get cached tips
+			f = open(cachedPath, 'rb')
+			tips = json.load(f)
+			f.close()
+		
+		else:
+			r = self.fsClient.venues.tips(venue['id'], params={'limit': 500})
+			tips = r['tips']['items']
+
+			# cache the tips
+			f = open(cachedPath, 'wb')
+			json.dump(tips, f)
+			f.close()
+			
 		return tips
 
 	def tipText(self, tips):
