@@ -232,6 +232,15 @@ class GeoDish:
 			d['salience'] = entity.salience
 			d['score'] = entity.sentiment.score
 			d['magnitude'] = entity.sentiment.magnitude
+			d['mentions'] = []
+			for mention in entity.mentions:
+				m = {}
+				m['beginOffset'] = mention.text.begin_offset
+				m['content'] = meniton.text.content
+				m['magnitude'] = mention.sentiment.magnitude
+				m['sentiment'] = mention.sentiment.score
+				m['type'] = mention.type
+				d['mentions'].append(m)
 			r.append(d)
 
 		return r
