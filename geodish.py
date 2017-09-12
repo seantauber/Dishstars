@@ -236,7 +236,7 @@ class GeoDish:
 			for mention in entity.mentions:
 				m = {}
 				m['beginOffset'] = mention.text.begin_offset
-				m['content'] = meniton.text.content
+				m['content'] = mention.text.content
 				m['magnitude'] = mention.sentiment.magnitude
 				m['sentiment'] = mention.sentiment.score
 				m['type'] = mention.type
