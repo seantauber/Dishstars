@@ -323,7 +323,7 @@ class GeoDish:
 			topDishes += venue['topDishes']
 
 		# sort by composite score
-		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reversed=True)
+		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reverse=True)
 
 		self.topDishes = topDishes
 
