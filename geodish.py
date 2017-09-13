@@ -8,6 +8,8 @@ from google.cloud import language_v1beta2
 from google.cloud.language_v1beta2 import enums
 from google.cloud.language_v1beta2 import types
 
+import pandas as pd
+
 
 class GeoDish:
 
@@ -262,6 +264,34 @@ class GeoDish:
 			print(u'Salience: {}'.format(entity.salience))
 			print(u'Sentiment: {}\n'.format(entity.sentiment))
 
+
+
+	def findTopDishes(self, venue):
+		'''
+		'''
+		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
+		dishDf = pd.DataFrame(venue['dishes'])
+		
+		# filter out entities with negative or neutral sentiment
+		df = df[df.score >= .2]
+		df['compositeScore'] = df.score * df.magnitude
+
+
+		# Fuzzy string matching to find the best matching dish item for each entity
+		dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.dishes))
+
+		df['dish'] = [result[0] for result in dishMatch]
+		df['matchScore'] = [result[1] for result in dishMatch]
+
+		# filter out low match scores
+		df = df[df.matchScore >= 90]
+
+		# Group by dish and combine the score
+		topDishes = df.grouby('dish').compositeScore.sum().to_frame().reset_index()
+
+		topDishes['venueId'] = venue['id']
+
+		venue['topDishes'] = topDishes.to_dict(orient='records')
 
 
 
