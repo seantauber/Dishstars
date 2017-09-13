@@ -307,15 +307,20 @@ class GeoDish:
 		# filter out low match scores
 		df = df[df.matchScore >= 90]
 
-		# Group by dish and combine the score
-		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
+		if df.shape[0] > 0:
 
-		topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
-		topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
+			# Group by dish and combine the score
+			topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
 
-		topDishes['venueId'] = venue['id']
+			topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
+			topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
 
-		venue['topDishes'] = topDishes.to_dict(orient='records')
+			topDishes['venueId'] = venue['id']
+
+			venue['topDishes'] = topDishes.to_dict(orient='records')
+
+		else:
+			venue['topDishes'] = []
 
 
 
