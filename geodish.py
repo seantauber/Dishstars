@@ -41,6 +41,15 @@ class GeoDish:
 			self.analyzeReviewSentiment(venue)
 
 
+	def findTopDishes(self):
+		'''
+		'''
+		for venue in self.venues:
+			self.findTopDishesForVenue(venue)
+
+		self.findTopDishesForLocation()
+
+
 	def save(self):
 		'''
 		'''
@@ -267,7 +276,7 @@ class GeoDish:
 
 
 
-	def findTopDishes(self, venue):
+	def findTopDishesForVenue(self, venue):
 		'''
 		'''
 		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
@@ -293,13 +302,25 @@ class GeoDish:
 		topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
 		topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
 
-		topDishes.sort_values(by='compositeScore', ascending=False)
-
 		topDishes['venueId'] = venue['id']
 
 		venue['topDishes'] = topDishes.to_dict(orient='records')
 
 
+
+	def findTopDishesForLocation(self):
+		'''
+		'''
+		# get a list of top dishes from all venues
+		topDishes = []
+		for venue in self.venues:
+			topDishes += venue['topDishes']
+
+		# sort by composite score
+		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reversed=True)
+
+		self.topDishes = topDishes
+		
 
 
 
