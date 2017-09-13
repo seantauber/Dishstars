@@ -279,7 +279,7 @@ class GeoDish:
 
 
 		# Fuzzy string matching to find the best matching dish item for each entity
-		dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.dishes))
+		dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.dishes), axis=1)
 
 		df['dish'] = [result[0] for result in dishMatch]
 		df['matchScore'] = [result[1] for result in dishMatch]
