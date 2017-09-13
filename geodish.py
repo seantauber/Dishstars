@@ -283,7 +283,7 @@ class GeoDish:
 
 
 
-	def findTopDishesForVenue(self, venue):
+	def findTopDishesForVenue(self, venue, debug=False):
 		'''
 		'''
 		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
@@ -312,6 +312,9 @@ class GeoDish:
 		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
 
 		if len(topDishes):
+
+			if debug:
+				print topDishes
 
 			topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
 			topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
