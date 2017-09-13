@@ -44,7 +44,9 @@ class GeoDish:
 	def findTopDishes(self):
 		'''
 		'''
-		for venue in self.venues:
+		n = len(self.venues)
+		for i, venue in enumerate(self.venues):
+			print "%s/%s %s" % (i, n, venue['name'])
 			self.findTopDishesForVenue(venue)
 
 		self.findTopDishesForLocation()
