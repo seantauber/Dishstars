@@ -9,7 +9,7 @@ from google.cloud.language_v1beta2 import enums
 from google.cloud.language_v1beta2 import types
 
 import pandas as pd
-from fuzz import process
+from fuzzwuzzy import process
 
 
 class GeoDish:
