@@ -35,7 +35,7 @@ class GeoDish:
 
 		self.venues = {}
 		for venue in updatedVenues:
-			self.venue.update({venue['id']: venue})
+			self.venues.update({venue['id']: venue})
 
 
 	def entitySentimentAnalysis(self):
