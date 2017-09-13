@@ -223,7 +223,7 @@ class GeoDish:
 		if sys.maxunicode == 65535:
 			encoding = enums.EncodingType.UTF16
 
-		result = client.analyze_entity_sentiment(document, encoding, language='en')
+		result = client.analyze_entity_sentiment(document, encoding)
 
 		if verbose:
 			for entity in result.entities:
