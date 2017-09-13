@@ -25,19 +25,23 @@ class GeoDish:
 		'''
 		self.location = nearLocation
 		updatedVenues = []
-		self.venues = self.getRestaurants(nearLocation)
-		for venue in self.venues:
+		venues = self.getRestaurants(nearLocation)
+		for venue in venues:
 			dishes = self.getMenu(venue)
 			if len(dishes) > 0:
 				tips = self.getTips(venue)
 				venue.update({u'dishes': dishes, u'tips': tips})
 				updatedVenues.append(venue)
-		self.venues = updatedVenues
+
+		self.venues = {}
+		for venue in updatedVenues:
+			self.venue.update({venue['id']: venue})
+
 
 	def entitySentimentAnalysis(self):
 		'''
 		'''
-		for venue in self.venues:
+		for venue in self.venues.values():
 			self.analyzeReviewSentiment(venue)
 
 
@@ -45,7 +49,7 @@ class GeoDish:
 		'''
 		'''
 		n = len(self.venues)
-		for i, venue in enumerate(self.venues):
+		for i, venue in enumerate(self.venues.values()):
 			print "%s/%s %s" % (i, n, venue['name'])
 			self.findTopDishesForVenue(venue)
 
@@ -319,11 +323,19 @@ class GeoDish:
 		'''
 		# get a list of top dishes from all venues
 		topDishes = []
-		for venue in self.venues:
+		for venue in self.venues.values():
 			topDishes += venue['topDishes']
 
 		# sort by composite score
 		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reverse=True)
+
+		for dish in topDishes:
+			venueId = dish['venueId']
+			dish['venueName'] = self.venues[venueId]['name']
+			dish['location'] = self.venues[venueId]['location']
+			dish['venueCategories'] = self.venues[venueId]['categories']
+			dish['venueUrl'] = self.venues[venueId]['url']
+			dish['contact'] = self.venues[venueId]['contact']
 
 		self.topDishes = topDishes
 
