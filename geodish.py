@@ -332,10 +332,14 @@ class GeoDish:
 		for dish in topDishes:
 			venueId = dish['venueId']
 			dish['venueName'] = self.venues[venueId]['name']
-			dish['location'] = self.venues[venueId]['location']
-			dish['venueCategories'] = self.venues[venueId]['categories']
-			dish['venueUrl'] = self.venues[venueId]['url']
-			dish['contact'] = self.venues[venueId]['contact']
+			if 'location' in self.venues[venueId]:
+				dish['location'] = self.venues[venueId]['location']
+			if 'categories' in self.venues[venueId]:
+				dish['venueCategories'] = self.venues[venueId]['categories']
+			if 'url' in self.venues[venueId]:
+				dish['venueUrl'] = self.venues[venueId]['url']
+			if 'contact' in self.venues[venueId]:
+				dish['contact'] = self.venues[venueId]['contact']
 
 		self.topDishes = topDishes
 
