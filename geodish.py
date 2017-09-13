@@ -307,6 +307,10 @@ class GeoDish:
 		# filter out low match scores
 		df = df[df.matchScore >= 90]
 
+		if debug:
+			print df
+			print
+
 
 		# Group by dish and combine the score
 		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
