@@ -286,53 +286,57 @@ class GeoDish:
 	def findTopDishesForVenue(self, venue, debug=False):
 		'''
 		'''
-		
-		if len(venue['entitySentiment']) == 0:
-			venue['topDishes'] = []
-			return
 
-		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
-		dishDf = pd.DataFrame(venue['dishes'])
-		if 'price' not in dishDf.columns:
-			dishDf['price'] = None
-		if 'description' not in dishDf.columns:
-			dishDf['description'] = None
-		
-		# filter out entities with negative or neutral sentiment
-		df = df[df.score >= .2]
-		df['compositeScore'] = df.score * df.magnitude
+		try:
+			if len(venue['entitySentiment']) == 0:
+				venue['topDishes'] = []
+				return
 
-
-		# Fuzzy string matching to find the best matching dish item for each entity
-		dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.name), axis=1)
-
-		df['dish'] = [result[0] for result in dishMatch]
-		df['matchScore'] = [result[1] for result in dishMatch]
-
-		# filter out low match scores
-		df = df[df.matchScore >= 90]
-
-		if debug:
-			print df
-			print
+			df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
+			dishDf = pd.DataFrame(venue['dishes'])
+			if 'price' not in dishDf.columns:
+				dishDf['price'] = None
+			if 'description' not in dishDf.columns:
+				dishDf['description'] = None
+			
+			# filter out entities with negative or neutral sentiment
+			df = df[df.score >= .2]
+			df['compositeScore'] = df.score * df.magnitude
 
 
-		# Group by dish and combine the score
-		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
+			# Fuzzy string matching to find the best matching dish item for each entity
+			dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.name), axis=1)
 
-		if len(topDishes):
+			df['dish'] = [result[0] for result in dishMatch]
+			df['matchScore'] = [result[1] for result in dishMatch]
+
+			# filter out low match scores
+			df = df[df.matchScore >= 90]
 
 			if debug:
-				print topDishes
+				print df
+				print
 
-			topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
-			topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
 
-			topDishes['venueId'] = venue['id']
+			# Group by dish and combine the score
+			topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
 
-			venue['topDishes'] = topDishes.to_dict(orient='records')
+			if len(topDishes):
 
-		else:
+				if debug:
+					print topDishes
+
+				topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
+				topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
+
+				topDishes['venueId'] = venue['id']
+
+				venue['topDishes'] = topDishes.to_dict(orient='records')
+
+			else:
+				venue['topDishes'] = []
+
+		except:
 			venue['topDishes'] = []
 
 
