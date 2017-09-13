@@ -215,15 +215,15 @@ class GeoDish:
 
 		document = types.Document(
 			content=text.encode('utf-8'),
-			type=enums.Document.Type.PLAIN_TEXT,
-			language='en'),
+			language='en',
+			type=enums.Document.Type.PLAIN_TEXT)
 
 		# Pass in encoding type to get useful offsets in the response.
 		encoding = enums.EncodingType.UTF32
 		if sys.maxunicode == 65535:
 			encoding = enums.EncodingType.UTF16
 
-		result = client.analyze_entity_sentiment(document, encoding)
+		result = client.analyze_entity_sentiment(document, encoding, language='en')
 
 		if verbose:
 			for entity in result.entities:
