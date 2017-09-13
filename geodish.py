@@ -288,7 +288,7 @@ class GeoDish:
 		df = df[df.matchScore >= 90]
 
 		# Group by dish and combine the score
-		topDishes = df.grouby('dish').compositeScore.sum().to_frame().reset_index()
+		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
 
 		topDishes['venueId'] = venue['id']
 
