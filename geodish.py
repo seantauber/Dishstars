@@ -281,6 +281,10 @@ class GeoDish:
 		'''
 		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
 		dishDf = pd.DataFrame(venue['dishes'])
+		if 'price' not in dishDf.columns:
+			dishDf['price'] = None
+		if 'description' not in dishDf.columns:
+			dishDf['description'] = None
 		
 		# filter out entities with negative or neutral sentiment
 		df = df[df.score >= .2]
@@ -320,7 +324,7 @@ class GeoDish:
 		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reversed=True)
 
 		self.topDishes = topDishes
-		
+
 
 
 
