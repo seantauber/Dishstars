@@ -286,6 +286,11 @@ class GeoDish:
 	def findTopDishesForVenue(self, venue, debug=False):
 		'''
 		'''
+		
+		if len(venue['entitySentiment']) == 0:
+			venue['topDishes'] = []
+			return
+
 		df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
 		dishDf = pd.DataFrame(venue['dishes'])
 		if 'price' not in dishDf.columns:
