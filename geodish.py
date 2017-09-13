@@ -289,6 +289,10 @@ class GeoDish:
 
 		# Group by dish and combine the score
 		topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
+
+		topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
+		topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
+
 		topDishes.sort_values(by='compositeScore', ascending=False)
 
 		topDishes['venueId'] = venue['id']
