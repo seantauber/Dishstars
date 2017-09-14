@@ -406,7 +406,7 @@ class Cache:
 		return self.dishfire.writeFoursquareMenu(venueId, data)
 
 	def writeEntity(self, venueId, data):
-		return self.dishfire.readGoogleNLPEntitySentiment(venueId, {'entities': data})
+		return self.dishfire.writeGoogleNLPEntitySentiment(venueId, {'entities': data})
 
 
 
