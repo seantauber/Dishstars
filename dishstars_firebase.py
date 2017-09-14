@@ -77,28 +77,28 @@ class DishstarsFirebase:
 	
 	def writeFoursquareMenu(self, venueId, data):
 		url = self._BASEURL + "cache/foursquare/menu/%s.json" % venueId
-		return putData(url, data)
+		return self.putData(url, data)
 
 	def writeFoursquareTips(self, venueId, data):
 		url = self._BASEURL + "cache/foursquare/tips/%s.json" % venueId
-		return putData(url, data)
+		return self.putData(url, data)
 
 	def writeGoogleNLPEntitySentiment(self, venueId, data):
 		url = self._BASEURL + "cache/foursquare/tipsEntitySentiment/%s.json" % venueId
-		return putData(url, data)
+		return self.putData(url, data)
 
 
 	def readFoursquareMenu(self, venueId):
 		url = self._BASEURL + "cache/foursquare/menu/%s.json" % venueId
-		return getData(url)
+		return self.getData(url)
 
 	def readFoursquareTips(self, venueId):
 		url = self._BASEURL + "cache/foursquare/tips/%s.json" % venueId
-		return getData(url)
+		return self.getData(url)
 
 	def readGoogleNLPEntitySentiment(self, venueId):
 		url = self._BASEURL + "cache/foursquare/tipsEntitySentiment/%s.json" % venueId
-		return getData(url)
+		return self.getData(url)
 	
 
 
