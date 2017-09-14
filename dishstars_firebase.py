@@ -59,7 +59,6 @@ class DishstarsFirebase:
 			data=json.dumps(data).encode("utf-8"),
 			headers=self._build_headers()))
 
-		# self.firebaseTimestamp(url)
 		return response
 
 	def postData(self, url, data):
@@ -69,6 +68,16 @@ class DishstarsFirebase:
 			data=json.dumps(data).encode("utf-8"),
 			headers=self._build_headers()))
 		return response['name']
+
+	def patchData(self, url, data):
+		'''
+		'''
+		data['timestamp'] = {'.sv': 'timestamp'}
+		response = self._firebase_response(requests.patch(url,
+			data=json.dumps(data).encode("utf-8"),
+			headers=self._build_headers()))
+
+		return response
 
 	def getData(self, url):
 		'''
@@ -110,7 +119,26 @@ class DishstarsFirebase:
 	def readGoogleNLPEntitySentiment(self, venueId):
 		url = self._BASEURL + "cache/foursquare/tipsEntitySentiment/%s.json" % venueId
 		return self.getData(url)
-	
+
+
+	def writePopularDishes(self, locationId, dishes):
+		url = self._BASEURL + "cache/popularDishes/location/%s/dishes.json" % locationId
+		
+		# write a timestamp to location so we know when it was last refreshed
+		self.patchData(url, {})
+
+		for dish in dishes:
+			self.postData(url, dish)
+		
+
+	def readPopularDishes(self, locationId):
+		url = self._BASEURL + "cache/popularDishes/location/%s.json" % locationId
+		return self.getData(url)
+
+	def readLocationCacheTimestamp(self, locationId):
+		url = self._BASEURL + "cache/popularDishes/location/%s/timestamp.json" % locationId
+		return self.getData(url)
+
 
 
 

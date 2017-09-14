@@ -1,0 +1,4 @@
+queue:
+- name: default
+  retry_parameters:
+    task_age_limit: 1h

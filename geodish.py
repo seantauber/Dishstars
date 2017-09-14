@@ -31,7 +31,7 @@ class GeoDish:
 		updatedVenues = []
 		venues = self.getRestaurants(nearLocation)
 		for venue in venues:
-			dishes = self.getMenu(venue)
+			dishes = self.getDishesFromMenu(venue)
 			if len(dishes) > 0:
 				tips = self.getTips(venue)
 				venue.update({u'dishes': dishes, u'tips': tips})
@@ -55,7 +55,8 @@ class GeoDish:
 		n = len(self.venues)
 		for i, venue in enumerate(self.venues.values()):
 			print "%s/%s %s" % (i, n, venue['name'])
-			self.findTopDishesForVenue(venue)
+			topDishes = self.findTopDishesForVenue(venue)
+			venue['topDishes'] = topDishes
 
 		self.findTopDishesForLocation()
 
@@ -107,7 +108,7 @@ class GeoDish:
 
 
 
-	def getMenu(self, venue):
+	def getDishesFromMenu(self, venue):
 		'''
 		'''
 		# check cache
@@ -118,8 +119,8 @@ class GeoDish:
 			self.foursquareApiCallCount += 1
 			# cache the menu
 			self.cache.writeMenu(venue['id'], menu)
-		menu = self.parseMenu(menu)
-		return menu
+		dishes = self.parseMenu(menu)
+		return dishes
 
 	def parseMenu(self, menuDict):
 		'''
@@ -334,13 +335,15 @@ class GeoDish:
 
 				topDishes['venueId'] = venue['id']
 
-				venue['topDishes'] = topDishes.to_dict(orient='records')
+				topDishes = topDishes.to_dict(orient='records')
 
 			else:
-				venue['topDishes'] = []
+				topDishes = []
 
 		except:
-			venue['topDishes'] = []
+			topDishes = []
+
+		return topDishes
 
 
 
@@ -377,6 +380,17 @@ class GeoDish:
 			return u''
 
 
+	def savePopularDishes(self, locationId, dishes):
+		'''
+		'''
+		self.cache.writePopularDishes(locationId, dishes)
+
+	def loadPopularDishes(self, locationId):
+		'''
+		'''
+		return self.cache.readPopularDishes(locationId)
+
+
 
 
 class Cache:
@@ -407,6 +421,24 @@ class Cache:
 
 	def writeEntity(self, venueId, data):
 		return self.dishfire.writeGoogleNLPEntitySentiment(venueId, {'entities': data})
+
+
+	def readPopularDishes(self, locationId):
+		r = self.dishfire.readPopularDishes(locationId)
+		if r is not None:
+			r = r['dishes']
+		return r
+
+	def locationHasCachedDishes(self, locationId):
+		r = dishfire.readLocationCacheTimestamp(locationId)
+		if r is None:
+			return False
+		return True
+
+
+	def writePopularDishes(self, locationId, dishes):
+		return self.dishfire.writePopularDishes(locationId, dishes)
+
 
 
 
