@@ -396,7 +396,7 @@ class Cache:
 	def readEntity(self, venueId):
 		r = self.dishfire.readGoogleNLPEntitySentiment(venueId)
 		if r is not None:
-			r = r['tips']
+			r = r['entities']
 		return r
 
 	def writeTips(self, venueId, data):
