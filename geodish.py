@@ -135,8 +135,9 @@ class GeoDish:
 					else:
 						sectionPath = d['name']
 				try:
-					for item in d['entries']['items']:
-						getMenuItem(item, sectionPath=sectionPath)
+					if d['entries']['count'] > 0:
+						for item in d['entries']['items']:
+							getMenuItem(item, sectionPath=sectionPath)
 				except:
 					print d
 					raise
