@@ -19,8 +19,8 @@ class GeoDish:
 	def __init__(self):
 		self.fsClient = foursquare.Foursquare(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 		self.fsExploreParams = {'section': 'food', 'limit': 500, 'openNow': 0}
-		self.FoursquareApiCallCount = 0
-		self.GoogleApiCallCount = 0
+		self.foursquareApiCallCount = 0
+		self.googleApiCallCount = 0
 		self.cache = Cache()
 
 
@@ -100,7 +100,7 @@ class GeoDish:
 		params.update({'near': nearLocation})
 
 		r = self.fsClient.venues.explore(params=params)
-		self.FoursquareApiCallCount += 1
+		self.foursquareApiCallCount += 1
 		self.geocode = r['geocode']
 
 		return r['groups'][0]['items']
@@ -115,7 +115,7 @@ class GeoDish:
 
 		if menu is None:
 			menu = self.fsClient.venues.menu(venue['id'])
-			self.FoursquareApiCallCount += 1
+			self.foursquareApiCallCount += 1
 			# cache the menu
 			self.cache.writeMenu(venue['id'], menu)
 		menu = self.parseMenu(menu)
@@ -167,7 +167,7 @@ class GeoDish:
 
 		if tips is None:
 			r = self.fsClient.venues.tips(venue['id'], params={'limit': 500})
-			self.FoursquareApiCallCount += 1
+			self.foursquareApiCallCount += 1
 			tips = r['tips']['items']
 
 			# cache the tips
@@ -221,7 +221,7 @@ class GeoDish:
 			encoding = enums.EncodingType.UTF16
 
 		result = client.analyze_entity_sentiment(document, encoding)
-		GoogleApiCallCount += 1
+		googleApiCallCount += 1
 
 		if verbose:
 			for entity in result.entities:
