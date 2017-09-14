@@ -202,7 +202,7 @@ class GeoDish:
 			entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 
 			# cache entity sentiment results
-			self.cache.writeEntity(venue['is'], entitySentiment)
+			self.cache.writeEntity(venue['id'], entitySentiment)
 
 		return entitySentiment
 
