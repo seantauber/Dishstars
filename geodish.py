@@ -226,7 +226,7 @@ class GeoDish:
 			encoding = enums.EncodingType.UTF16
 
 		result = client.analyze_entity_sentiment(document, encoding)
-		googleApiCallCount += 1
+		self.googleApiCallCount += 1
 
 		if verbose:
 			for entity in result.entities:
