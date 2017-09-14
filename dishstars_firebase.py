@@ -54,6 +54,7 @@ class DishstarsFirebase:
 	def putData(self, url, data):
 		'''
 		'''
+		data['timestamp'] = {'.sv': 'timestamp'}
 		response = self._firebase_response(requests.put(url,
 			data=json.dumps(data).encode("utf-8"),
 			headers=self._build_headers()))
