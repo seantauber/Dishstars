@@ -386,7 +386,7 @@ class Cache:
 		return r
 
 	def readMenu(self, venueId):
-		return self.self.dishfire.readFoursquareMenu(venueId)
+		return self.dishfire.readFoursquareMenu(venueId)
 
 	def readEntity(self, venueId):
 		r = self.dishfire.readGoogleNLPEntitySentiment(venueId)
