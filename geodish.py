@@ -197,7 +197,7 @@ class GeoDish:
 			entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 
 			# cache entity sentiment results
-			self.cache.writeEntity(venue['is'], entitySentiment)
+			self.self.cache.writeEntity(venue['is'], entitySentiment)
 
 		return entitySentiment
 
@@ -380,28 +380,28 @@ class Cache:
 		self.dishfire = DishstarsFirebase()
 
 	def readTips(self, venueId):
-		r = dishfire.readFoursquareTips(venueId)
+		r = self.dishfire.readFoursquareTips(venueId)
 		if r is not None:
 			r = r['tips']
 		return r
 
 	def readMenu(self, venueId):
-		return dishfire.readFoursquareMenu(venueId)
+		return self.self.dishfire.readFoursquareMenu(venueId)
 
 	def readEntity(self, venueId):
-		r = dishfire.readGoogleNLPEntitySentiment(venueId)
+		r = self.dishfire.readGoogleNLPEntitySentiment(venueId)
 		if r is not None:
 			r = r['tips']
 		return r
 
 	def writeTips(self, venueId, data):
-		return dishfire.writeFoursquareTips(venueId, {'tips': data})
+		return self.dishfire.writeFoursquareTips(venueId, {'tips': data})
 
 	def writeMenu(self, venueId, data):
-		return dishfire.writeFoursquareMenu(venueId, data)
+		return self.dishfire.writeFoursquareMenu(venueId, data)
 
 	def writeEntity(self, venueId, data):
-		return dishfire.readGoogleNLPEntitySentiment(venueId, {'entities': data})
+		return self.dishfire.readGoogleNLPEntitySentiment(venueId, {'entities': data})
 
 
 
