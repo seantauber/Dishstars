@@ -58,7 +58,7 @@ class DishstarsFirebase:
 			data=json.dumps(data).encode("utf-8"),
 			headers=self._build_headers()))
 
-		self.firebaseTimestamp(url)
+		# self.firebaseTimestamp(url)
 		return response
 
 	def postData(self, url, data):
