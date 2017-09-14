@@ -78,7 +78,7 @@ class DishstarsFirebase:
 		'''
 		'''
 		s = url.split(".")
-		url = s[0] += "/timestamp.json"
+		url = s[0] + "/timestamp.json"
 		self._firebase_response(requests.patch(url,
 			data=json.dumps({'.sv': 'timestamp'}).encode("utf-8"),
 			headers=self._build_headers()))
