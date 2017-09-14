@@ -11,13 +11,17 @@ from google.cloud.language_v1beta2 import types
 import pandas as pd
 from fuzzywuzzy import process
 
+from dishstars_firebase import DishstarsFirebase
+
 
 class GeoDish:
 
 	def __init__(self):
 		self.fsClient = foursquare.Foursquare(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 		self.fsExploreParams = {'section': 'food', 'limit': 500, 'openNow': 0}
-		self.apiCallCount = 0
+		self.FoursquareApiCallCount = 0
+		self.GoogleApiCallCount = 0
+		self.cache = Cache()
 
 
 	def getDishes(self, nearLocation):
@@ -42,7 +46,7 @@ class GeoDish:
 		'''
 		'''
 		for venue in self.venues.values():
-			self.analyzeReviewSentiment(venue)
+			venue['entitySentiment'] = self.analyzeReviewSentiment(venue)
 
 
 	def findTopDishes(self):
@@ -96,6 +100,7 @@ class GeoDish:
 		params.update({'near': nearLocation})
 
 		r = self.fsClient.venues.explore(params=params)
+		self.FoursquareApiCallCount += 1
 		self.geocode = r['geocode']
 
 		return r['groups'][0]['items']
@@ -106,18 +111,13 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		cachedPath = 'cache/menu/%s' % venue['id']
-		if os.path.isfile(cachedPath):
-			# get menu from cache
-			f = open(cachedPath, 'rb')
-			menu = json.load(f)
-			f.close()
-		else:
+		menu = cache.readMenu(venue['id'])
+
+		if menu is None:
 			menu = self.fsClient.venues.menu(venue['id'])
+			self.FoursquareApiCallCount += 1
 			# cache the menu
-			f = open(cachedPath, 'wb')
-			json.dump(menu, f)
-			f.close()
+			cache.writeMenu(venue['id'], menu)
 		menu = self.parseMenu(menu)
 		return menu
 
@@ -163,21 +163,15 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		cachedPath = 'cache/tips/%s' % venue['id']
-		if os.path.isfile(cachedPath):
-			# get cached tips
-			f = open(cachedPath, 'rb')
-			tips = json.load(f)
-			f.close()
-		
-		else:
+		tips = cache.readTips(venue['id'])
+
+		if tips is None:
 			r = self.fsClient.venues.tips(venue['id'], params={'limit': 500})
+			self.FoursquareApiCallCount += 1
 			tips = r['tips']['items']
 
 			# cache the tips
-			f = open(cachedPath, 'wb')
-			json.dump(tips, f)
-			f.close()
+			cache.writeTips(venue['id'], tips)
 
 		return tips
 
@@ -195,22 +189,17 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		cachedPath = 'cache/entity/%s' % venue['id']
-		if os.path.isfile(cachedPath):
-			# get cached entities
-			f = open(cachedPath, 'rb')
-			entitySentiment = json.load(f)
-			f.close()
-			venue['entitySentiment'] = entitySentiment
-		else:
+		entitySentiment = cache.readEntity(venue['id'])
+
+		if entitySentiment is None:
 			tipText = self.tipText(venue['tips'])
 			result = self.entitySentimentText(tipText)
-			venue['entitySentiment'] = self.entitySentimentResultToJsonCompatible(result)
+			entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 
 			# cache entity sentiment results
-			f = open(cachedPath, 'wb')
-			json.dump(venue['entitySentiment'], f)
-			f.close()
+			cache.writeEntity(venue['is'], entitySentiment)
+
+		return entitySentiment
 
 
 
@@ -232,6 +221,7 @@ class GeoDish:
 			encoding = enums.EncodingType.UTF16
 
 		result = client.analyze_entity_sentiment(document, encoding)
+		GoogleApiCallCount += 1
 
 		if verbose:
 			for entity in result.entities:
@@ -384,8 +374,34 @@ class GeoDish:
 
 
 
+class Cache:
 
+	def __init__(self):
+		self.dishfire = DishstarsFirebase()
 
+	def readTips(self, venueId):
+		r = dishfire.readFoursquareTips(venueId)
+		if r is not None:
+			r = r['tips']
+		return r
+
+	def readMenu(self, venueId):
+		return dishfire.readFoursquareMenu(venueId)
+
+	def readEntity(self, venueId):
+		r = dishfire.readGoogleNLPEntitySentiment(venueId)
+		if r is not None:
+			r = r['tips']
+		return r
+
+	def writeTips(self, venueId, data):
+		return dishfire.writeFoursquareTips(venueId, {'tips': data})
+
+	def writeMenu(self, venueId, data):
+		return dishfire.writeFoursquareMenu(venueId, data)
+
+	def writeEntity(self, venueId, data):
+		return dishfire.readGoogleNLPEntitySentiment(venueId, {'entities': data})
 
 
 
