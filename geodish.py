@@ -82,7 +82,7 @@ class GeoDish:
 	def getRestaurants(self, nearLocation):
 		'''
 		'''
-		items = foursquareExplore(nearLocation)
+		items = self.foursquareExplore(nearLocation)
 
 		venuesWithMenus = []
 		for item in items:
