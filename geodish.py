@@ -111,13 +111,13 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		menu = cache.readMenu(venue['id'])
+		menu = self.cache.readMenu(venue['id'])
 
 		if menu is None:
 			menu = self.fsClient.venues.menu(venue['id'])
 			self.FoursquareApiCallCount += 1
 			# cache the menu
-			cache.writeMenu(venue['id'], menu)
+			self.cache.writeMenu(venue['id'], menu)
 		menu = self.parseMenu(menu)
 		return menu
 
@@ -163,7 +163,7 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		tips = cache.readTips(venue['id'])
+		tips = self.cache.readTips(venue['id'])
 
 		if tips is None:
 			r = self.fsClient.venues.tips(venue['id'], params={'limit': 500})
@@ -171,7 +171,7 @@ class GeoDish:
 			tips = r['tips']['items']
 
 			# cache the tips
-			cache.writeTips(venue['id'], tips)
+			self.cache.writeTips(venue['id'], tips)
 
 		return tips
 
@@ -189,7 +189,7 @@ class GeoDish:
 		'''
 		'''
 		# check cache
-		entitySentiment = cache.readEntity(venue['id'])
+		entitySentiment = self.cache.readEntity(venue['id'])
 
 		if entitySentiment is None:
 			tipText = self.tipText(venue['tips'])
@@ -197,7 +197,7 @@ class GeoDish:
 			entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 
 			# cache entity sentiment results
-			cache.writeEntity(venue['is'], entitySentiment)
+			self.cache.writeEntity(venue['is'], entitySentiment)
 
 		return entitySentiment
 
