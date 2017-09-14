@@ -54,10 +54,11 @@ class DishstarsFirebase:
 	def putData(self, url, data):
 		'''
 		'''
-		data.update({".sv": "timestamp"})
 		response = self._firebase_response(requests.put(url,
 			data=json.dumps(data).encode("utf-8"),
 			headers=self._build_headers()))
+
+		self.firebaseTimestamp(url)
 		return response
 
 	def postData(self, url, data):
@@ -72,6 +73,16 @@ class DishstarsFirebase:
 		'''
 		'''
 		return self._firebase_response(requests.get(url, headers=self._build_headers()))
+
+	def firebaseTimestamp(url):
+		'''
+		'''
+		s = url.split(".")
+		s[0] += "/timestamp"
+		url = s[0] + s[1]
+		self._firebase_response(requests.patch(url,
+			data=json.dumps({'.sv','timestamp'}).encode("utf-8"),
+			headers=self._build_headers()))
 
 
 	
