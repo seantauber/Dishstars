@@ -78,12 +78,7 @@ class GeoDish:
 	def getRestaurants(self, nearLocation):
 		'''
 		'''
-		params = self.fsExploreParams
-		params.update({'near': nearLocation})
-
-		r = self.fsClient.venues.explore(params=params)
-
-		items = r['groups'][0]['items']
+		items = foursquareExplore(nearLocation)
 
 		venuesWithMenus = []
 		for item in items:
@@ -92,6 +87,19 @@ class GeoDish:
 				venuesWithMenus.append(venue)
 
 		return venuesWithMenus
+
+
+	def foursquareExplore(self, nearLocation):
+		'''
+		'''
+		params = self.fsExploreParams
+		params.update({'near': nearLocation})
+
+		r = self.fsClient.venues.explore(params=params)
+		self.geocode = r['geocode']
+
+		return r['groups'][0]['items']
+
 
 
 	def getMenu(self, venue):
@@ -365,6 +373,13 @@ class GeoDish:
 				dish['contact'] = self.venues[venueId]['contact']
 
 		self.topDishes = topDishes
+
+
+	def locationString(self):
+		try:
+			return self.geocode['displayString']
+		except:
+			return u''
 
 
 
