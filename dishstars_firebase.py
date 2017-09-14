@@ -74,7 +74,7 @@ class DishstarsFirebase:
 		'''
 		return self._firebase_response(requests.get(url, headers=self._build_headers()))
 
-	def firebaseTimestamp(url):
+	def firebaseTimestamp(self, url):
 		'''
 		'''
 		s = url.split(".")
