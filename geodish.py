@@ -134,8 +134,12 @@ class GeoDish:
 						sectionPath += " | %s" % d['name']
 					else:
 						sectionPath = d['name']
-				for item in d['entries']['items']:
-					getMenuItem(item, sectionPath=sectionPath)
+				try:
+					for item in d['entries']['items']:
+						getMenuItem(item, sectionPath=sectionPath)
+				except:
+					print d
+					raise
 			elif 'entryId' in d:
 				menuItem = {}
 				menuItem['name'] = d['name']
