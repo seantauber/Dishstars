@@ -348,7 +348,7 @@ class GeoDish:
 			posNames = [entity['name'] for entity in posEntities]
 
 			# Fuzzy string matching to find the best matching dish item for each entity
-			dishMatch = map(lambda x: process.extractOne(x['name'], dishNames), posNames)
+			dishMatch = map(lambda x: process.extractOne(x, dishNames), posNames)
 
 			highMatch = []
 			for i, entity in enumerate(posEntities):
