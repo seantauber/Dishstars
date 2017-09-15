@@ -26,3 +26,9 @@ handlers:
 libraries:
 - name: ssl
   version: latest
+- name: numpy
+  version: latest
+
+env_variables:
+  GOOGLE_CLOUD_DISABLE_GRPC: 'true'
+  

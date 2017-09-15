@@ -4,9 +4,10 @@ import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
 
 import six
-from google.cloud import language_v1beta2
-from google.cloud.language_v1beta2 import enums
-from google.cloud.language_v1beta2 import types
+# from google.cloud import language_v1beta2
+# from google.cloud.language_v1beta2 import enums
+# from google.cloud.language_v1beta2 import types
+from google_language import GoogleLanguage
 
 import pandas as pd
 from fuzzywuzzy import process
@@ -14,11 +15,13 @@ from fuzzywuzzy import process
 from dishstars_firebase import DishstarsFirebase
 
 
+
 class GeoDish:
 
 	def __init__(self):
 		self.fsClient = foursquare.Foursquare(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 		self.fsExploreParams = {'section': 'food', 'limit': 500, 'openNow': 0}
+		self.googleLanguage = GoogleLanguage()
 		self.foursquareApiCallCount = 0
 		self.googleApiCallCount = 0
 		self.cache = Cache()
@@ -199,8 +202,10 @@ class GeoDish:
 
 		if entitySentiment is None:
 			tipText = self.tipText(venue['tips'])
-			result = self.entitySentimentText(tipText)
-			entitySentiment = self.entitySentimentResultToJsonCompatible(result)
+			# result = self.entitySentimentText(tipText)
+			# entitySentiment = self.entitySentimentResultToJsonCompatible(result)
+			result = self.googleLanguage.analyseEntitySentiment(tipText)
+			entitySentiment = self.reformatEntitySentimentObject(result)
 
 			# cache entity sentiment results
 			self.cache.writeEntity(venue['id'], entitySentiment)
@@ -209,60 +214,83 @@ class GeoDish:
 
 
 
-	def entitySentimentText(self, text, verbose=False):
-		"""Detects entity sentiment in the provided text."""
-		client = language_v1beta2.LanguageServiceClient()
+	# def entitySentimentText(self, text, verbose=False):
+	# 	"""Detects entity sentiment in the provided text."""
+	# 	client = language_v1beta2.LanguageServiceClient()
 
-		if isinstance(text, six.binary_type):
-			text = text.decode('utf-8')
+	# 	if isinstance(text, six.binary_type):
+	# 		text = text.decode('utf-8')
 
-		document = types.Document(
-			content=text.encode('utf-8'),
-			language='en',
-			type=enums.Document.Type.PLAIN_TEXT)
+	# 	document = types.Document(
+	# 		content=text.encode('utf-8'),
+	# 		language='en',
+	# 		type=enums.Document.Type.PLAIN_TEXT)
 
-		# Pass in encoding type to get useful offsets in the response.
-		encoding = enums.EncodingType.UTF32
-		if sys.maxunicode == 65535:
-			encoding = enums.EncodingType.UTF16
+	# 	# Pass in encoding type to get useful offsets in the response.
+	# 	encoding = enums.EncodingType.UTF32
+	# 	if sys.maxunicode == 65535:
+	# 		encoding = enums.EncodingType.UTF16
 
-		result = client.analyze_entity_sentiment(document, encoding)
-		self.googleApiCallCount += 1
+	# 	result = client.analyze_entity_sentiment(document, encoding)
+	# 	self.googleApiCallCount += 1
 
-		if verbose:
-			for entity in result.entities:
-				print('Mentions: ')
-				print(u'Name: "{}"'.format(entity.name))
-				for mention in entity.mentions:
-					print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
-					print(u'  Content : {}'.format(mention.text.content))
-					print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
-					print(u'  Sentiment : {}'.format(mention.sentiment.score))
-					print(u'  Type : {}'.format(mention.type))
-				print(u'Salience: {}'.format(entity.salience))
-				print(u'Sentiment: {}\n'.format(entity.sentiment))
+	# 	if verbose:
+	# 		for entity in result.entities:
+	# 			print('Mentions: ')
+	# 			print(u'Name: "{}"'.format(entity.name))
+	# 			for mention in entity.mentions:
+	# 				print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
+	# 				print(u'  Content : {}'.format(mention.text.content))
+	# 				print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
+	# 				print(u'  Sentiment : {}'.format(mention.sentiment.score))
+	# 				print(u'  Type : {}'.format(mention.type))
+	# 			print(u'Salience: {}'.format(entity.salience))
+	# 			print(u'Sentiment: {}\n'.format(entity.sentiment))
 
-		return result
+	# 	return result
 
 
-	def entitySentimentResultToJsonCompatible(self, result):
+	# def entitySentimentResultToJsonCompatible(self, result):
+	# 	'''
+	# 	'''
+	# 	r = []
+	# 	for entity in result.entities:
+	# 		d = {}
+	# 		d['name'] = entity.name
+	# 		d['salience'] = entity.salience
+	# 		d['score'] = entity.sentiment.score
+	# 		d['magnitude'] = entity.sentiment.magnitude
+	# 		d['mentions'] = []
+	# 		for mention in entity.mentions:
+	# 			m = {}
+	# 			m['beginOffset'] = mention.text.begin_offset
+	# 			m['content'] = mention.text.content
+	# 			m['magnitude'] = mention.sentiment.magnitude
+	# 			m['sentiment'] = mention.sentiment.score
+	# 			m['type'] = mention.type
+	# 			d['mentions'].append(m)
+	# 		r.append(d)
+
+	# 	return r
+
+	def reformatEntitySentimentObject(self, rawEntitySentimentObject):
 		'''
 		'''
 		r = []
-		for entity in result.entities:
+		for entity in rawEntitySentimentObject:
 			d = {}
-			d['name'] = entity.name
-			d['salience'] = entity.salience
-			d['score'] = entity.sentiment.score
-			d['magnitude'] = entity.sentiment.magnitude
+			d['name'] = entity['name']
+			d['salience'] = entity['salience']
+			d['score'] = entity['sentiment']['score']
+			d['magnitude'] = entity['sentiment']['magnitude']
 			d['mentions'] = []
-			for mention in entity.mentions:
+			for mention in entity['mentions']:
 				m = {}
-				m['beginOffset'] = mention.text.begin_offset
-				m['content'] = mention.text.content
-				m['magnitude'] = mention.sentiment.magnitude
-				m['sentiment'] = mention.sentiment.score
-				m['type'] = mention.type
+				m['beginOffset'] = mention['text']['begin_offset']
+				m['content'] = mention['text']['content']
+				m['magnitude'] = mention['sentiment']['magnitude']
+				m['sentiment'] = mention['sentiment']['score']
+				m['type'] = mention['type']
 				d['mentions'].append(m)
 			r.append(d)
 
@@ -270,20 +298,20 @@ class GeoDish:
 
 
 
-	def printEntitySentimentResult(self, result):
-		'''
-		'''
-		for entity in result.entities:
-			print('Mentions: ')
-			print(u'Name: "{}"'.format(entity.name))
-			for mention in entity.mentions:
-				print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
-				print(u'  Content : {}'.format(mention.text.content))
-				print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
-				print(u'  Sentiment : {}'.format(mention.sentiment.score))
-				print(u'  Type : {}'.format(mention.type))
-			print(u'Salience: {}'.format(entity.salience))
-			print(u'Sentiment: {}\n'.format(entity.sentiment))
+	# def printEntitySentimentResult(self, result):
+	# 	'''
+	# 	'''
+	# 	for entity in result.entities:
+	# 		print('Mentions: ')
+	# 		print(u'Name: "{}"'.format(entity.name))
+	# 		for mention in entity.mentions:
+	# 			print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
+	# 			print(u'  Content : {}'.format(mention.text.content))
+	# 			print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
+	# 			print(u'  Sentiment : {}'.format(mention.sentiment.score))
+	# 			print(u'  Type : {}'.format(mention.type))
+	# 		print(u'Salience: {}'.format(entity.salience))
+	# 		print(u'Sentiment: {}\n'.format(entity.sentiment))
 
 
 
