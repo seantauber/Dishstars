@@ -44,9 +44,7 @@ def getDishes(locationId):
 	dishes = geoDish.loadPopularDishes(locationId)
 	locationName = urlsafe_b64decode(locationId.encode('utf8')).decode('utf8')
 
-	result = {'location': locationName, 'dishes': dishes}
-
-	return jsonify(result)
+	return render_template('searchresults.html', locationName=locationName, dishes=dishes)
 
 
 @app.route('/tasks/processMenu', methods=['POST'])

@@ -141,7 +141,7 @@ class DishstarsFirebase:
 		return self.getData(url)
 
 	def readLocationCacheTimestamp(self, locationId):
-		url = self._BASEURL + "cache/popularDishes/location/%s/timestamp.json" % locationId
+		url = self._BASEURL + "cache/popularDishes/location/%s/dishes/timestamp.json" % locationId
 		return self.getData(url)
 
 
