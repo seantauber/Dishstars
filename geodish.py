@@ -438,17 +438,17 @@ class GeoDish:
 		# sort by composite score
 		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reverse=True)
 
-		for dish in topDishes:
-			venueId = dish['venueId']
-			dish['venueName'] = self.venues[venueId]['name']
-			if 'location' in self.venues[venueId]:
-				dish['location'] = self.venues[venueId]['location']
-			if 'categories' in self.venues[venueId]:
-				dish['venueCategories'] = self.venues[venueId]['categories']
-			if 'url' in self.venues[venueId]:
-				dish['venueUrl'] = self.venues[venueId]['url']
-			if 'contact' in self.venues[venueId]:
-				dish['contact'] = self.venues[venueId]['contact']
+		# for dish in topDishes:
+		# 	venueId = dish['venueId']
+		# 	dish['venueName'] = self.venues[venueId]['name']
+		# 	if 'location' in self.venues[venueId]:
+		# 		dish['location'] = self.venues[venueId]['location']
+		# 	if 'categories' in self.venues[venueId]:
+		# 		dish['venueCategories'] = self.venues[venueId]['categories']
+		# 	if 'url' in self.venues[venueId]:
+		# 		dish['venueUrl'] = self.venues[venueId]['url']
+		# 	if 'contact' in self.venues[venueId]:
+		# 		dish['contact'] = self.venues[venueId]['contact']
 
 		self.topDishes = topDishes
 
