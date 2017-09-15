@@ -468,7 +468,22 @@ class GeoDish:
 	def loadPopularDishes(self, locationId):
 		'''
 		'''
-		return self.cache.readPopularDishes(locationId)
+		dishes = self.cache.readPopularDishes(locationId)
+		if dishes is not None:
+			dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
+		return dishes
+
+	def locationHasCachedDishes(self, locationId):
+		'''
+		'''
+		return self.cache.locationHasCachedDishes(locationId)
+
+
+	def pushQueueData(self, data):
+		return self.cache.pushQueueData(data)
+
+	def pullQueueData(self, key):
+		return self.cache.pullQueueData(key)
 
 
 
@@ -507,10 +522,10 @@ class Cache:
 		r = self.dishfire.readPopularDishes(locationId)
 		if r is not None:
 			r = r['dishes']
-		return r
+		return r.values()
 
 	def locationHasCachedDishes(self, locationId):
-		r = dishfire.readLocationCacheTimestamp(locationId)
+		r = self.dishfire.readLocationCacheTimestamp(locationId)
 		if r is None:
 			return False
 		return True
@@ -518,6 +533,14 @@ class Cache:
 
 	def writePopularDishes(self, locationId, dishes):
 		return self.dishfire.writePopularDishes(locationId, dishes)
+
+
+
+	def pushQueueData(self, data):
+		return self.dishfire.pushQueueData(data)
+
+	def pullQueueData(self, key):
+		return self.dishfire.pullQueueData(key)
 
 
 

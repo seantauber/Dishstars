@@ -84,6 +84,11 @@ class DishstarsFirebase:
 		'''
 		return self._firebase_response(requests.get(url, headers=self._build_headers()))
 
+	def deleteData(self, url):
+		'''
+		'''
+		return self._firebase_response(requests.delete(url, headers=self._build_headers()))
+
 	def firebaseTimestamp(self, url):
 		'''
 		'''
@@ -138,6 +143,19 @@ class DishstarsFirebase:
 	def readLocationCacheTimestamp(self, locationId):
 		url = self._BASEURL + "cache/popularDishes/location/%s/timestamp.json" % locationId
 		return self.getData(url)
+
+
+
+	def pushQueueData(self, data):
+		url = self._BASEURL + "cache/queueData.json"
+		return self.postData(url, data)
+
+	def pullQueueData(self, key):
+		url = self._BASEURL + "cache/queueData/%s.json" % key
+		data = self.getData(url)
+		self.deleteData(url)
+		return data
+
 
 
 
