@@ -365,7 +365,7 @@ class GeoDish:
 					topDishes[entity['dish']] = entity
 
 			for dish in topDishes.values():
-				info = dishLookup[dish['name']]
+				info = dishLookup[dish['dish']]
 				dish['price'] = info['price']
 				dish['description'] = info['description']
 				dish['venueId'] = venue['id']
