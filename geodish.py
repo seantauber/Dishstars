@@ -420,6 +420,7 @@ class GeoDish:
 			# 	topDishes = []
 
 		except:
+			raise
 			topDishes = []
 
 		return topDishes
