@@ -352,9 +352,9 @@ class GeoDish:
 
 			highMatch = []
 			for i, entity in enumerate(posEntities):
-				if dismatch[i][1] >= 90:
+				if dishMatch[i][1] >= 90:
 					entity['dish'] = dishMatch[i][0]
-					entity['matchScore'] = dishmatch[i][1]
+					entity['matchScore'] = dishMatch[i][1]
 					highMatch.append(entity)
 
 			topDishes = {}
