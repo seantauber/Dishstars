@@ -9,7 +9,7 @@ import six
 # from google.cloud.language_v1beta2 import types
 from google_language import GoogleLanguage
 
-import pandas as pd
+# import pandas as pd
 from fuzzywuzzy import process
 
 from dishstars_firebase import DishstarsFirebase
@@ -324,49 +324,100 @@ class GeoDish:
 				venue['topDishes'] = []
 				return
 
-			df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
-			dishDf = pd.DataFrame(venue['dishes'])
-			if 'price' not in dishDf.columns:
-				dishDf['price'] = None
-			if 'description' not in dishDf.columns:
-				dishDf['description'] = None
+			entities = venue['entitySentiment']
+			dishes = venue['dishes']
+
+			dishLookup = {}
+			for dish in dishes:
+				dishLookup[dish['name']] = dish
+
+			for dish in dishes:
+				if 'price' not in dish:
+					dish['price'] = None
+				if 'description' not in dish:
+					dish['description'] = None
+
+			# filter out entities with negative or neutral sentiment
+			posEntities = []
+			for entity in entities:
+				if entity['score'] > 0.2:
+					entity['compositeScore'] = entity['score'] * entity['magnitude']
+					posEntities.append(entity)
+
+			dishNames = [dish['name'] for dish in dishes]
+			posNames = [entity['name'] for entity in posEntities]
+
+			# Fuzzy string matching to find the best matching dish item for each entity
+			dishMatch = posNames.map(lambda x: process.extractOne(x['name'], dishNames))
+
+			highMatch = []
+			for i, entity in enumerate(posEntities):
+				if dismatch[i][1] >= 90:
+					entity['dish'] = dishMatch[i][0]
+					entity['matchScore'] = dishmatch[i][1]
+					highMatch.append(entity)
+
+			topDishes = {}
+			for entity in highMatch:
+				if entity['dish'] in topDishes:
+					topDishes[entity['dish']]['compositeScore'] += entity['compositeScore']
+				else:
+					topDishes[entity['dish']] = entity
+
+			for dish in topDishes.values():
+				info = dishLookup[dish['name']]
+				dish['price'] = info['price']
+				dish['description'] = info['description']
+				dish['venueId'] = venue['id']
+				dish['venueName'] = venue['name']
+				dish['location'] = venue['location']
+
+			topDishes = topDishes.values()
+
+
+			# df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
+			# dishDf = pd.DataFrame(venue['dishes'])
+			# if 'price' not in dishDf.columns:
+			# 	dishDf['price'] = None
+			# if 'description' not in dishDf.columns:
+			# 	dishDf['description'] = None
 			
 			# filter out entities with negative or neutral sentiment
-			df = df[df.score >= .2]
-			df['compositeScore'] = df.score * df.magnitude
+			# df = df[df.score >= .2]
+			# df['compositeScore'] = df.score * df.magnitude
 
 
 			# Fuzzy string matching to find the best matching dish item for each entity
-			dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.name), axis=1)
+			# dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.name), axis=1)
 
-			df['dish'] = [result[0] for result in dishMatch]
-			df['matchScore'] = [result[1] for result in dishMatch]
+			# df['dish'] = [result[0] for result in dishMatch]
+			# df['matchScore'] = [result[1] for result in dishMatch]
 
 			# filter out low match scores
-			df = df[df.matchScore >= 90]
+			# df = df[df.matchScore >= 90]
 
-			if debug:
-				print df
-				print
+			# if debug:
+			# 	print df
+			# 	print
 
 
-			# Group by dish and combine the score
-			topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
+			# # Group by dish and combine the score
+			# topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
 
-			if len(topDishes):
+			# if len(topDishes):
 
-				if debug:
-					print topDishes
+			# 	if debug:
+			# 		print topDishes
 
-				topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
-				topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
+			# 	topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
+			# 	topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
 
-				topDishes['venueId'] = venue['id']
+			# 	topDishes['venueId'] = venue['id']
 
-				topDishes = topDishes.to_dict(orient='records')
+			# 	topDishes = topDishes.to_dict(orient='records')
 
-			else:
-				topDishes = []
+			# else:
+			# 	topDishes = []
 
 		except:
 			topDishes = []
