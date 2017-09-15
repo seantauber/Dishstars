@@ -522,6 +522,8 @@ class Cache:
 		r = self.dishfire.readPopularDishes(locationId)
 		if r is not None:
 			r = r['dishes']
+			if 'timestamp' in r:
+				del r['timestamp']
 		return r.values()
 
 	def locationHasCachedDishes(self, locationId):
