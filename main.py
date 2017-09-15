@@ -54,6 +54,8 @@ def processMenu():
 
 	dataKey = json.loads(request.data)['dataKey']
 	data = geoDish.pullQueueData(dataKey)
+	if data is None:
+		return 'ok'
 	venue = data[u'venue']
 
 	geoDish = GeoDish()
@@ -74,6 +76,8 @@ def processTips():
 
 	dataKey = json.loads(request.data)['dataKey']
 	data = geoDish.pullQueueData(dataKey)
+	if data is None:
+		return 'ok'
 	venue = data[u'venue']
 
 	geoDish = GeoDish()
@@ -94,6 +98,8 @@ def processEntitySentiment():
 
 	dataKey = json.loads(request.data)['dataKey']
 	data = geoDish.pullQueueData(dataKey)
+	if data is None:
+		return 'ok'
 	venue = data[u'venue']
 
 	geoDish = GeoDish()
@@ -114,6 +120,8 @@ def processPopularDishes():
 
 	dataKey = json.loads(request.data)['dataKey']
 	data = geoDish.pullQueueData(dataKey)
+	if data is None:
+		return 'ok'
 	venue = data[u'venue']
 	locationId = data[u'locationId']
 

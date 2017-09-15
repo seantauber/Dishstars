@@ -471,6 +471,8 @@ class GeoDish:
 		dishes = self.cache.readPopularDishes(locationId)
 		if dishes is not None:
 			dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
+		else:
+			dishes = []
 		return dishes
 
 	def locationHasCachedDishes(self, locationId):
@@ -524,7 +526,8 @@ class Cache:
 			r = r['dishes']
 			if 'timestamp' in r:
 				del r['timestamp']
-		return r.values()
+			r = r.values()
+		return r
 
 	def locationHasCachedDishes(self, locationId):
 		r = self.dishfire.readLocationCacheTimestamp(locationId)
