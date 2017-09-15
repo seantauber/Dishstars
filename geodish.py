@@ -204,7 +204,7 @@ class GeoDish:
 			tipText = self.tipText(venue['tips'])
 			# result = self.entitySentimentText(tipText)
 			# entitySentiment = self.entitySentimentResultToJsonCompatible(result)
-			result = self.googleLanguage.analyseEntitySentiment(tipText)
+			result = self.googleLanguage.analyzeEntitySentiment(tipText)
 			entitySentiment = self.reformatEntitySentimentObject(result)
 
 			# cache entity sentiment results
