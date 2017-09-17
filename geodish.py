@@ -371,6 +371,7 @@ class GeoDish:
 				dish['venueId'] = venue['id']
 				dish['venueName'] = venue['name']
 				dish['location'] = venue['location']
+				dish['categories'] = venue['categories']
 
 			topDishes = topDishes.values()
 
@@ -469,10 +470,12 @@ class GeoDish:
 		'''
 		'''
 		dishes = self.cache.readPopularDishes(locationId)
-		if dishes is not None:
-			dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
-		else:
-			dishes = []
+		# if dishes is not None:
+		# 	dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
+		# else:
+		# 	dishes = []
+		if dishes is None:
+			return {}
 		return dishes
 
 	def locationHasCachedDishes(self, locationId):
@@ -526,7 +529,7 @@ class Cache:
 			r = r['dishes']
 			if 'timestamp' in r:
 				del r['timestamp']
-			r = r.values()
+			# r = r.values()
 		return r
 
 	def locationHasCachedDishes(self, locationId):

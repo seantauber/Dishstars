@@ -34,17 +34,26 @@ def findDishes():
 			taskqueue.add(url='/tasks/processMenu', payload=json.dumps({'dataKey': dataKey}))
 
 	# return {'status': 200, 'locationId': locationId}
-	return redirect(url_for('getDishes', locationId=locationId))
+	return redirect(url_for('locationResults', locationId=locationId))
 
 
-@app.route('/location/<locationId>/dishes', methods=['GET'])
-def getDishes(locationId):
+@app.route('/results/location/<locationId>', methods=['GET'])
+def locationResults(locationId):
+
+	geoDish = GeoDish()
+	locationName = urlsafe_b64decode(locationId.encode('utf8')).decode('utf8')
+
+	return render_template('searchresults.html', locationId=locationId, locationName=locationName)
+
+
+@app.route('/api/searchResults/location/<locationId>/dishes', methods=['GET'])
+def getPopularDishes(locationId):
 
 	geoDish = GeoDish()
 	dishes = geoDish.loadPopularDishes(locationId)
-	locationName = urlsafe_b64decode(locationId.encode('utf8')).decode('utf8')
+	count = len(dishes)
 
-	return render_template('searchresults.html', locationName=locationName, dishes=dishes)
+	return jsonify({'count': count, 'dishes': dishes})
 
 
 @app.route('/tasks/processMenu', methods=['POST'])

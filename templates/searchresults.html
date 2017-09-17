@@ -38,16 +38,7 @@
 
     <h3>Popular dishes for {{ locationName }}</h3>
 
-    <div class="list-group">
-
-      {% for dish in dishes %}
-      <a href="#" class="list-group-item">
-        <h4 class="list-group-item-heading">{{ dish['dish'] }} <small>{{ dish['venueName'] }}, {{ dish['location']['city'] }}</small></h4>
-        <p class="list-group-item-text">{{ dish['description'] }}</p>
-        <p class="list-group-item-heading">${{ dish['price'] }}</p>
-
-      </a>
-      {% endfor %}
+    <div class="list-group" id="popularDishesGroup">
   
     </div>
 
@@ -56,5 +47,84 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <script>
+
+      var locId = "{{ locationId }}";
+      var locName = "{{ locationName }}";
+      var dishList = {};
+      var reloadIntervalTime = 5000;
+      var reloadInterval;
+
+      function loadDishes() {
+        $.getJSON( "{{ url_for('getPopularDishes', locationId=locationId) }}", dishesUpdated );
+      }
+
+      function dishesUpdated( data ) {
+        let dishCount = data['count']
+        if (dishCount > Object.keys(window.dishList).length) {
+          // there are new dishes
+          $.each( data['dishes'], function( key, val ) {
+            if (!( key in window.dishList )) {
+              window.dishList[key] = val
+            }
+          });
+          console.log('loading dishes');
+          console.log(Object.keys(window.dishList).length);
+          refreshDishDisplay();
+
+        } else {
+          if (dishCount > 0) {
+            // no new dishes, inrease reload interval
+            clearInterval(reloadInterval);
+            reloadIntervalTime *= 2;
+            window.reloadInterval = setInterval( loadDishes, reloadIntervalTime );
+            console.log('increasing reload interval');
+          }
+        }
+      }
+
+      function refreshDishDisplay() {
+
+        var dishes = Object.values(window.dishList);
+        sortByKey(dishes, 'compositeScore');
+
+        var items = [];
+        var n = dishes.length;
+        for (i=0; i<n; i++) {
+
+          var dishName = dishes[i].dish;
+          var venueName = dishes[i].venueName;
+          var city = dishes[i].location.city;
+          var description = dishes[i].description;
+          var price = dishes[i].price;
+
+          items.push("<div class='list-group-item'><h4 class='list-group-item-heading'>" + dishName + " <small>" + venueName + ", " + city + "</small></h4><p class='list-group-item-text'> " + description + "</p><p class='list-group-item-heading'>$" + price + "</p></div>");
+        };
+
+        $("#popularDishesGroup").html( items.join("") );
+
+      }
+
+      function sortByKey(array, key) {
+        return array.sort(function(a, b) {
+          var x = a[key]; var y = b[key];
+          return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        });
+      }
+
+      $( document ).ready(function() {
+        loadDishes();
+        window.reloadInterval = setInterval( loadDishes, reloadIntervalTime );
+      });
+
+    </script>
+
   </body>
 </html>
+
+
+
+
+
