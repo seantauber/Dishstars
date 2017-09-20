@@ -341,7 +341,8 @@ class GeoDish:
 			posEntities = []
 			for entity in entities:
 				if entity['score'] > 0.2:
-					entity['compositeScore'] = entity['score'] * entity['magnitude']
+					# entity['compositeScore'] = entity['score'] * entity['magnitude']
+					entity['compositeScore'] = 1
 					posEntities.append(entity)
 
 			dishNames = [dish['name'] for dish in dishes]

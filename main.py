@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def mainPage():
-    return render_template('dishstars_main.html')
+    return render_template('searchresults.html')
 
 
 @app.route('/findDishes', methods=['POST'])
@@ -23,6 +23,8 @@ def findDishes():
 	locationName = geoDish.locationString()
 	locationId = urlsafe_b64encode(locationName.encode('utf8'))
 
+	geo = geoDish.geocode
+
 	# Check if there are dishes in the cache for this location
 	if not geoDish.locationHasCachedDishes(locationId):
 
@@ -33,8 +35,10 @@ def findDishes():
 			dataKey = geoDish.pushQueueData(data)
 			taskqueue.add(url='/tasks/processMenu', payload=json.dumps({'dataKey': dataKey}))
 
-	# return {'status': 200, 'locationId': locationId}
-	return redirect(url_for('locationResults', locationId=locationId))
+
+	data = {'locationId': locationId, 'locationName': locationName, 'latLng': geo['center']}
+	return jsonify(data)
+	# return redirect(url_for('locationResults', locationId=locationId, lat=geo['center']['lat'], lng=geo['center']['lng']))
 
 
 @app.route('/results/location/<locationId>', methods=['GET'])
@@ -42,8 +46,10 @@ def locationResults(locationId):
 
 	geoDish = GeoDish()
 	locationName = urlsafe_b64decode(locationId.encode('utf8')).decode('utf8')
+	latLng = [request.args['lat'], request.args['lng']]
 
-	return render_template('searchresults.html', locationId=locationId, locationName=locationName)
+	return render_template('searchresults.html', locationId=locationId,
+		locationName=locationName, latLng=latLng)
 
 
 @app.route('/api/searchResults/location/<locationId>/dishes', methods=['GET'])
