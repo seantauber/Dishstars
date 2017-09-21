@@ -491,6 +491,13 @@ class GeoDish:
 	def pullQueueData(self, key):
 		return self.cache.pullQueueData(key)
 
+	def saveUserDishList(self, data):
+		return self.cache.saveUserDishList(data)
+
+	def loadUserDishList(self, key):
+		return self.cache.loadUserDishList(key)
+
+
 
 
 
@@ -550,6 +557,13 @@ class Cache:
 
 	def pullQueueData(self, key):
 		return self.dishfire.pullQueueData(key)
+
+
+	def saveUserDishList(self, data):
+		return self.dishfire.writeSavedDishList(data)
+
+	def loadUserDishList(self, key):
+		return self.dishfire.readSavedDishList(key)
 
 
 

@@ -62,6 +62,26 @@ def getPopularDishes(locationId):
 	return jsonify({'count': count, 'dishes': dishes})
 
 
+@app.route('/api/saveDishList', methods=['POST'])
+def saveDishList():
+
+	data = request.get_json(force=True)
+
+	geoDish = GeoDish()
+	listKey = geoDish.saveUserDishList(data)
+	return jsonify({'listKey': listKey})
+
+
+@app.route('/dishlist/<key>', methods=['GET'])
+def loadDishList(key):
+
+	geoDish = GeoDish()
+
+	data = geoDish.loadUserDishList(key)
+	return jsonify(data)
+
+
+
 @app.route('/tasks/processMenu', methods=['POST'])
 def processMenu():
 

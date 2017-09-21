@@ -157,6 +157,18 @@ class DishstarsFirebase:
 		return data
 
 
+	def writeSavedDishList(self, data):
+		url = self._BASEURL + "/userData/savedDishList.json"
+		return self.postData(url, data)
+
+
+	def readSavedDishList(self, key):
+		url = self._BASEURL + "/userData/savedDishList/%s.json" % key
+		data = self.getData(url)
+		return data
+	
+
+
 
 
 
