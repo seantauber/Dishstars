@@ -189,30 +189,32 @@ class GeoDish:
 			# cache the tips
 			self.cache.writeTips(venue['id'], tips)
 
-		self.createTipIndex(tips)
+		# self.createTipIndex(tips)
 
 		return tips
 
 
-	def createTipIndex(self, tips):
+	def createTipOffsetLookup(self, tips):
 		'''
 		'''
+
 
 		lenSum = [len(tips[0]['text'])]
-		for tip in tips[1:]:
-			lenSum.append(lenSum[-1] + len(tip['text']))
+		if len(tips) > 1:
+			for tip in tips[1:]:
+				lenSum.append(lenSum[-1] + len(tip['text']))
 
-		self.tipLengthSum = lenSum
+		return lenSum
 
 	
-	def tipIndexFromOffset(self, offset):
+	def tipIndexFromOffset(self, offsetLookup, offset):
 		'''
 		'''
-		if offset > self.tipLengthSum[-2]:
+		if offset > self.offsetLookup[-2]:
 			# it's the last index
-			return len(self.tipLengthSum) - 1
+			return len(self.offsetLookup) - 1
 		else:
-			return map(lambda x: x < offset, self.tipLengthSum).index(False)
+			return map(lambda x: x < offset, self.offsetLookup).index(False)
 
 
 	def tipText(self, tips):
@@ -236,7 +238,7 @@ class GeoDish:
 			# result = self.entitySentimentText(tipText)
 			# entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 			result = self.googleLanguage.analyzeEntitySentiment(tipText)
-			entitySentiment = self.reformatEntitySentimentObject(result)
+			entitySentiment = self.reformatEntitySentimentObject(result, venue['tips'])
 
 			# cache entity sentiment results
 			self.cache.writeEntity(venue['id'], entitySentiment)
@@ -304,7 +306,7 @@ class GeoDish:
 
 	# 	return r
 
-	def reformatEntitySentimentObject(self, rawEntitySentimentObject):
+	def reformatEntitySentimentObject(self, rawEntitySentimentObject, tips):
 		'''
 		'''
 		r = []
@@ -314,7 +316,7 @@ class GeoDish:
 			d['salience'] = entity['salience']
 			d['score'] = entity['sentiment']['score']
 			d['magnitude'] = entity['sentiment']['magnitude']
-			d['tipIndex'] = self.tipIndexForMention(entity['mentions'])
+			d['tipIndex'] = self.tipIndexForMention(entity['mentions'], tips)
 
 			# d['mentions'] = []
 			# for mention in entity['mentions']:
@@ -330,12 +332,13 @@ class GeoDish:
 
 		return r
 
-	def tipIndexForMention(self, mentions):
+	def tipIndexForMention(self, mentions, tips):
 		'''
 		'''
+		offsetLookup = self.createTipOffsetLookup(tips)
 		tipIndex = []
 		for mention in mentions:
-			tipIndex.append(self.tipIndexFromOffset(mention['text']['beginOffset']))
+			tipIndex.append(self.tipIndexFromOffset(offsetLookup, mention['text']['beginOffset']))
 
 		return tipIndex
 
