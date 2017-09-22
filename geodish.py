@@ -561,7 +561,7 @@ class Cache:
 	def readTips(self, venueId):
 		r = self.dishfire.readFoursquareTips(venueId)
 		if r is not None:
-			if 'tips' in r
+			if 'tips' in r:
 				r = r['tips']
 			else:
 				r = []
