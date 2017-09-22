@@ -312,7 +312,7 @@ class GeoDish:
 
 		return r
 
-	def tipIndexForMention(self. mentions):
+	def tipIndexForMention(self, mentions):
 		'''
 		'''
 		tipIndex = []
