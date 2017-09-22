@@ -555,7 +555,12 @@ class Cache:
 	def readTips(self, venueId):
 		r = self.dishfire.readFoursquareTips(venueId)
 		if r is not None:
-			r = r['tips']
+			try:
+				r = r['tips']
+			except:
+				print venueId
+				print "R"
+				print r
 		return r
 
 	def readMenu(self, venueId):
