@@ -195,7 +195,11 @@ class GeoDish:
 	def tipIndexFromOffset(self, offset):
 		'''
 		'''
-		map(lambda x: x < offset, self.tipLengthSum).index(False)
+		if offset > self.tipLengthSum[-2]:
+			# it's the last index
+			return len(self.tipLengthSum) - 1
+		else:
+			return map(lambda x: x < offset, self.tipLengthSum).index(False)
 
 
 	def tipText(self, tips):
