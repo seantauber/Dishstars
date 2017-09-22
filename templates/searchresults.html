@@ -46,10 +46,18 @@
 
             <div class="card" id="afterSave" style="display: none">
               <div class="card-header">
-                Here is a link that you can use to access your list in the future
+                <h6 class="card-title">Here's the link to your list</h6>
+                <small><a href="#" class="card-link" id="listLink" target="_blank"></a></small>
               </div>
               <div class="card-body">
-                <a href="#" class="card-link" id="listLink" target="_blank"></a>
+
+                <form id="emailForm" class="form-inline">
+                  <input class="form-control mr-sm-2" type="email" id="email" name="email" placeholder="you@domain.com" aria-label="Email" required>
+                  <input type="hidden" id="urlField" name="urlField" value="">
+                  <input type="hidden" id="locationField" name="locationField", value="">
+                  <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Send to email</button>
+                </form>
+
               </div>
             </div>
 
@@ -149,6 +157,8 @@
           }
 
           $('#resultsHeading').html("Here's your dish list for " + searchLocNames.join(", "));
+          $('#locationField').val( searchLocNames.join(", ") );
+
           $('#resultsInstruction').hide();
           $('#saveListLink').show();
           
@@ -221,11 +231,26 @@
 
         // Initialize / Reinitialize the map
         initMap();
+        // auto center/zoom
+        autoConfigMap();
 
         if (filterSaved) {
           // saved dishes display
           // show markers for all the venues
           createMarkersForSavedDishes();
+
+          // watch for mouse events and bounce map markers when mouse over listitems
+          for (i=0; i < dishes.length; i++) {
+            $("#"+dishes[i].dishKey).mouseenter(function () {
+              var dishKey = $(this)[0].id;
+              infoWindowOpen(savedDishes[dishKey], useMarker=true);
+            });
+
+            $("#"+dishes[i].dishKey).mouseleave(function () {
+              var dishKey = $(this)[0].id;
+              infoWindowClose();
+            });
+          }
 
         }
         else {
@@ -237,12 +262,12 @@
           for (i=0; i < dishes.length; i++) {
             $("#"+dishes[i].dishKey).mouseenter(function () {
               var dishKey = $(this)[0].id;
-              mouseEnterItem(dishKey);
+              infoWindowOpen(dishList[dishKey]);
             });
 
             $("#"+dishes[i].dishKey).mouseleave(function () {
               var dishKey = $(this)[0].id;
-              mouseExitItem(dishKey);
+              infoWindowClose();
             });
           }
         }
@@ -294,7 +319,7 @@
       }
 
 
-      function mouseEnterItem(dishKey) {
+      function showMarker(dishKey) {
         if (dishList[dishKey].marker == null) { 
           dishList[dishKey].marker = new google.maps.Marker({
             position: {'lat': dishList[dishKey].location.lat, 'lng': dishList[dishKey].location.lng},
@@ -305,11 +330,64 @@
         }
       }
 
-      function mouseExitItem(dishKey) {
+      function hideMarker(dishKey) {
         if (dishList[dishKey].marker != null) {
           dishList[dishKey].marker.setMap(null);
         }
       }
+
+      function markerBounceOn(dishKey) {
+        dishList[dishKey].marker.setAnimation(google.maps.Animation.BOUNCE);
+      }
+      function markerBounceOff(dishKey) {
+        dishList[dishKey].marker.setAnimation(null);
+      }
+
+      function infoWindowOpen(dish, useMarker=false) {
+
+        var contentString = "<h6>"+dish.dish+"</h6><p>"+dish.venueName+"</p>";
+        infoWindow.setContent(contentString);
+        if (useMarker){
+          infoWindow.open(map, dish.marker);
+        } else {
+          var pos = {
+                lat: dish.location.lat,
+                lng: dish.location.lng
+              };
+          infoWindow.setPosition(pos);
+          infoWindow.open(map);
+        }
+      }
+
+      function infoWindowClose() {
+        infoWindow.close();
+      }
+
+
+      function autoConfigMap() {
+
+        var dishKeys = Object.keys(dishList);
+        for (i=0; i < dishKeys.length; i++) {
+          
+          var key = dishKeys[i];
+
+          if (dishList[key].marker == null) { 
+
+            dishList[key].marker = new google.maps.Marker({
+              position: {'lat': dishList[key].location.lat, 'lng': dishList[key].location.lng},
+              map: null // we don't want to acutally show the marker yet
+            });
+          } 
+
+          // extend map bounds to marker postion to allow auto center/zoom.
+          var loc = new google.maps.LatLng(dishList[key].marker.position.lat(), dishList[key].marker.position.lng());
+          bounds.extend(loc);
+        }
+
+        map.fitBounds(bounds);       // auto-zoom
+        map.panToBounds(bounds);     // auto-center
+      }
+
 
 
       function createMarkersForSavedDishes() {
@@ -329,7 +407,14 @@
           else {
             savedDishes[key].marker.setMap(map);
           }
+
+          // extend map bounds to marker postion to allow auto center/zoom.
+          var loc = new google.maps.LatLng(savedDishes[key].marker.position.lat(), savedDishes[key].marker.position.lng());
+          bounds.extend(loc);
         }
+
+        map.fitBounds(bounds);       // auto-zoom
+        map.panToBounds(bounds);     // auto-center
       }
 
       function removeMarkersForSavedDishes() {
@@ -459,15 +544,19 @@
           }
         }
 
-        data.locations = searchLocations;
+        var params = {'dishes': data, 'locations': searchLocations};
+
+        // data.locations = searchLocations;
 
         // Fire off the request to 
-        $.post( "{{ url_for('saveDishList') }}", JSON.stringify(data), function(response){
+        $.post( "{{ url_for('saveDishList') }}", JSON.stringify(params), function(response){
           
           var listKey = response['listKey'];
           var listUrl = "dishlist/" + listKey;
-          $('#listLink')[0].href = listUrl;
+          $('#listLink')[0].href = listUrl + "?demo=1";
           $('#listLink').html( $('#listLink')[0].href );
+
+          $('#urlField').val( $('#listLink')[0].href )
           $('#afterSave').show()
 
         }, 'json');
@@ -475,11 +564,79 @@
       });
 
 
+      $("#emailForm").submit(function(event){
+
+        // Prevent default posting of form - put here to work in case of errors
+        event.preventDefault();
+
+        var $form = $(this);
+
+        // // validate the form
+        // var email = $("#email")[0].value
+        // if (email.trim() == "") {
+        //   console.error("Must specify search location.")
+        //   return
+        // }
+
+        // Let's select and cache all the fields
+        var $inputs = $form.find("input, select, button, textarea");
+
+        // Serialize the data in the form
+        var serializedData = $form.serialize();
+
+        // Let's disable the inputs for the duration of the Ajax request.
+        // Note: we disable elements AFTER the form data has been serialized.
+        // Disabled form elements will not be serialized.
+        $inputs.prop("disabled", true);
+
+        // Fire off the request
+        request = $.ajax({
+            url: "{{ url_for('sendDishListByEmail') }}",
+            type: "post",
+            data: serializedData
+        });
+
+        // Callback handler that will be called on success
+        request.done(function (response, textStatus, jqXHR){
+
+            console.log("email sent");
+            console.log(response);
+        });
+
+        // Callback handler that will be called on failure
+        request.fail(function (jqXHR, textStatus, errorThrown){
+            // Log the error to the console
+            console.error(
+                "The following error occurred: "+
+                textStatus, errorThrown
+            );
+        });
+
+        // Callback handler that will be called regardless
+        // if the request failed or succeeded
+        request.always(function () {
+            // Reenable the inputs
+            $inputs.prop("disabled", false);
+        });
+
+      });
+
+
+
     </script>
 
     <script>
       var map;
+      var bounds;
+      var infoWindow;
+
       function initMap() {
+
+        // bounds object allows re-center and auto-zoom
+        bounds  = new google.maps.LatLngBounds();
+
+        infoWindow = new google.maps.InfoWindow;
+
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 10,
           center: new google.maps.LatLng( latLng["lat"], latLng["lng"] ),

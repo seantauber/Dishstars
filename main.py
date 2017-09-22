@@ -1,5 +1,7 @@
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify, json
 from google.appengine.api import taskqueue
+from google.appengine.api import mail
+from google.appengine.api import app_identity
 from geodish import GeoDish
 from base64 import b64encode, b64decode, urlsafe_b64encode, urlsafe_b64decode
 
@@ -9,7 +11,10 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def mainPage():
-    return render_template('searchresults.html')
+	demo = 0
+	if 'demo' in request.args:
+		demo = 1
+	return render_template('searchresults.html', demo=demo)
 
 
 @app.route('/findDishes', methods=['POST'])
@@ -76,9 +81,50 @@ def saveDishList():
 def loadDishList(key):
 
 	geoDish = GeoDish()
-
 	data = geoDish.loadUserDishList(key)
+
+	demo = 0
+	if 'demo' in request.args:
+		demo = 1
+	return render_template('savedlist.html', key=key, demo=demo)
+
+@app.route('/api/dishlist/<key>', methods=['GET'])
+def getDishList(key):
+
+	geoDish = GeoDish()
+	data = geoDish.loadUserDishList(key)	
 	return jsonify(data)
+
+
+@app.route('/dishlist/sendEmail', methods=['POST'])
+def sendDishListByEmail():
+
+	email = request.form['email']
+	url = request.form['urlField']
+	location = request.form['locationField']
+
+	sendEmail(email, url, location)
+
+	return 'ok'
+
+
+def sendEmail(email, url, location):
+
+	mail.send_mail(sender="Dishstars <seanetauber@gmail.com>",
+                   to=email,
+                   subject="Your Dishes for %s" % location,
+                   body="""Here is a link to your saved in dishes in %s.
+
+%s
+
+Bon Apetite!
+
+The Dishstars Team
+""" % (location, url) )
+
+@app.route('/_ah/mail/', methods=['GET', 'POST'])
+def incomingEmail():
+	pass
 
 
 
