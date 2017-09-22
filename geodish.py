@@ -21,6 +21,19 @@ class GeoDish:
 		self.cache = Cache()
 
 
+	def processLocation(self, nearLocation):
+		'''
+		'''
+		print "getting dishes"
+		self.getDishes('nearLocation')
+		print "analyzing entity sentiment"
+		self.entitySentimentAnalysis()
+		print "finding top dishes"
+		self.findTopDishes()
+		print "saving"
+		self.savePopularDishes(self.locationId(), self.topDishes)
+
+
 	def getDishes(self, nearLocation):
 		'''
 		'''
@@ -312,7 +325,7 @@ class GeoDish:
 			# 	m['sentiment'] = mention['sentiment']['score']
 			# 	m['type'] = mention['type']
 			# 	d['mentions'].append(m)
-			
+
 			r.append(d)
 
 		return r
