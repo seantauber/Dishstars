@@ -2,7 +2,7 @@ import sys, os
 import json
 import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
-
+from base64 import b64encode, urlsafe_b64encode
 import six
 from google_language import GoogleLanguage
 from fuzzywuzzy import process
