@@ -210,6 +210,9 @@ class GeoDish:
 	def tipIndexFromOffset(self, offsetLookup, offset):
 		'''
 		'''
+		if len(offsetLookup) == 1:
+			return 0
+
 		if offset > offsetLookup[-2]:
 			# it's the last index
 			return len(offsetLookup) - 1
@@ -558,12 +561,10 @@ class Cache:
 	def readTips(self, venueId):
 		r = self.dishfire.readFoursquareTips(venueId)
 		if r is not None:
-			try:
+			if 'tips' in r
 				r = r['tips']
-			except:
-				print venueId
-				print "R"
-				print r
+			else:
+				r = []
 		return r
 
 	def readMenu(self, venueId):
