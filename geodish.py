@@ -312,7 +312,8 @@ class GeoDish:
 			# 	m['sentiment'] = mention['sentiment']['score']
 			# 	m['type'] = mention['type']
 			# 	d['mentions'].append(m)
-			# r.append(d)
+			
+			r.append(d)
 
 		return r
 
