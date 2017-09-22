@@ -166,7 +166,12 @@ class DishstarsFirebase:
 		url = self._BASEURL + "/userData/savedDishList/%s.json" % key
 		data = self.getData(url)
 		return data
-	
+
+	def readUserRecommended(self, key):
+		url = self._BASEURL + "/userData/suggested/%s.json" % key
+		data = self.getData(url)
+		return data
+
 
 
 

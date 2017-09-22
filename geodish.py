@@ -555,6 +555,9 @@ class GeoDish:
 	def loadUserDishList(self, key):
 		return self.cache.loadUserDishList(key)
 
+	def loadUserRecommended(self, key):
+		return self.cache.loadUserRecommended(key)
+
 
 
 
@@ -628,6 +631,9 @@ class Cache:
 
 	def loadUserDishList(self, key):
 		return self.dishfire.readSavedDishList(key)
+
+	def loadUserRecommended(self, key):
+		return self.dishfire.readUserRecommended(key)
 
 
 
