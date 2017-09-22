@@ -476,7 +476,7 @@ class GeoDish:
 
 		if topDishes is None:
 			return []
-			
+
 		return topDishes
 
 
@@ -576,7 +576,10 @@ class Cache:
 	def readEntity(self, venueId):
 		r = self.dishfire.readGoogleNLPEntitySentiment(venueId)
 		if r is not None:
-			r = r['entities']
+			if 'entities' in r:
+				r = r['entities']
+			else:
+				r= []
 		return r
 
 	def writeTips(self, venueId, data):
