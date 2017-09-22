@@ -472,8 +472,11 @@ class GeoDish:
 
 		except:
 			raise
-			topDishes = []
+			return []
 
+		if topDishes is None:
+			return []
+			
 		return topDishes
 
 
