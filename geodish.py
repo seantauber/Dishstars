@@ -25,7 +25,7 @@ class GeoDish:
 		'''
 		'''
 		print "getting dishes"
-		self.getDishes('nearLocation')
+		self.getDishes(nearLocation)
 		print "analyzing entity sentiment"
 		self.entitySentimentAnalysis()
 		print "finding top dishes"
