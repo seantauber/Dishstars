@@ -4,14 +4,8 @@ import foursquare
 from fscred import CLIENT_ID, CLIENT_SECRET
 
 import six
-# from google.cloud import language_v1beta2
-# from google.cloud.language_v1beta2 import enums
-# from google.cloud.language_v1beta2 import types
 from google_language import GoogleLanguage
-
-# import pandas as pd
 from fuzzywuzzy import process
-
 from dishstars_firebase import DishstarsFirebase
 
 
@@ -182,7 +176,27 @@ class GeoDish:
 			# cache the tips
 			self.cache.writeTips(venue['id'], tips)
 
+		self.createTipIndex(tips)
+
 		return tips
+
+
+	def createTipIndex(self, tips):
+		'''
+		'''
+
+		lenSum = [len(tips[0]['text'])]
+		for tip in tips[1:]:
+			lenSum.append(lenSum[-1] + len(tip['text']))
+
+		self.tipLengthSum = lenSum
+
+	
+	def tipIndexFromOffset(self, offset):
+		'''
+		'''
+		map(lambda x: x < offset, self.lenSum).index(False)
+
 
 	def tipText(self, tips):
 		'''
@@ -283,18 +297,29 @@ class GeoDish:
 			d['salience'] = entity['salience']
 			d['score'] = entity['sentiment']['score']
 			d['magnitude'] = entity['sentiment']['magnitude']
-			d['mentions'] = []
-			for mention in entity['mentions']:
-				m = {}
-				m['beginOffset'] = mention['text']['beginOffset']
-				m['content'] = mention['text']['content']
-				m['magnitude'] = mention['sentiment']['magnitude']
-				m['sentiment'] = mention['sentiment']['score']
-				m['type'] = mention['type']
-				d['mentions'].append(m)
-			r.append(d)
+			d['tipIndex'] = self.tipIndexForMention(entity['mentions'])
+
+			# d['mentions'] = []
+			# for mention in entity['mentions']:
+			# 	m = {}
+			# 	m['beginOffset'] = mention['text']['beginOffset']
+			# 	m['content'] = mention['text']['content']
+			# 	m['magnitude'] = mention['sentiment']['magnitude']
+			# 	m['sentiment'] = mention['sentiment']['score']
+			# 	m['type'] = mention['type']
+			# 	d['mentions'].append(m)
+			# r.append(d)
 
 		return r
+
+	def tipIndexForMention(self. mentions):
+		'''
+		'''
+		tipIndex = []
+		for mention in mentions:
+			tipIndex.append(self.tipIndexFromOffset(mention['text']['beginOffset']))
+
+		return tipIndex
 
 
 
@@ -460,6 +485,9 @@ class GeoDish:
 			return self.geocode['displayString']
 		except:
 			return u''
+
+	def locationId(self):
+		return urlsafe_b64encode(self.locationString().encode('utf8'))
 
 
 	def savePopularDishes(self, locationId, dishes):
