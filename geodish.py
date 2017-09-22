@@ -66,7 +66,10 @@ class GeoDish:
 		for i, venue in enumerate(self.venues.values()):
 			print "%s/%s %s" % (i, n, venue['name'])
 			topDishes = self.findTopDishesForVenue(venue)
-			venue['topDishes'] = topDishes
+			if topDishes is not None:
+				venue['topDishes'] = topDishes
+			else:
+				venue['topDishes'] = []
 
 		self.findTopDishesForLocation()
 
