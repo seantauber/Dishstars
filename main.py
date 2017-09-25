@@ -92,8 +92,10 @@ def loadDishList(key):
 def getDishList(key):
 
 	geoDish = GeoDish()
-	data = geoDish.loadUserDishList(key)	
-	return jsonify(data)
+	userData = geoDish.loadUserDishList(key)
+	userSugg = geoDish.loadUserRecommended(key)
+	userData['sugg'] = userSugg
+	return jsonify(userData)
 
 
 @app.route('/dishlist/sendEmail', methods=['POST'])

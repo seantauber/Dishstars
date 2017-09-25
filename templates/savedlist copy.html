@@ -28,8 +28,8 @@
             </ul>
 
             <div class="card">
-              <div class="card-header">
-                <h5 class="card-title">Suggestions based on your list</h5>
+              <div class="card-heading">
+                Suggest based on your list
               </div>
             </div>
 
@@ -115,8 +115,7 @@
           var destinations = [];
 
           for (i=0; i<dishes.length; i++) {
-            var locString = dishes[i].location.address + ", " + dishes[i].location.city;
-            destinations.push(locString);
+            destinations.push(dishes[i].location.formattedAddress.join(", "));
           }
 
           var service = new google.maps.DistanceMatrixService();
@@ -166,15 +165,6 @@
         var dishes = Object.keys(dishList).map(function(key) {
             return dishList[key];
           });
-
-        var suggDishes = Object.keys(suggList).map(function(key) {
-            return suggList[key];
-          });
-
-        var suggKeys = Object.keys(suggList);
-        for (i=0; i<suggKeys.length; i++) {
-          suggDishes[i].dishKey = suggKeys[i];
-        }
 
         if (distanceMatrix != null) {
           for (i=0; i<dishes.length; i++) {
@@ -231,62 +221,6 @@
 
         $("#dishesGroup").html( items.join("") );
 
-
-        // **************************************
-
-        var suggItems = [];
-
-        for (i=0; i<suggDishes.length; i++) {
-
-          var dishKey = suggDishes[i].dishKey;
-          var dishName = suggDishes[i].dish;
-          var venueName = suggDishes[i].venueName;
-          var venueId = suggDishes[i].venueId;
-          var address = suggDishes[i].location.address + ", " + suggDishes[i].location.city;
-
-          if (userPos != null) {
-            var dirUrl = encodeURI("https://www.google.com/maps/dir/?api=1&origin="+userPos.lat+","+userPos.lng+"&destination=" + address);
-          }
-          else {
-            var dirUrl = encodeURI("https://www.google.com/maps/dir/?api=1&destination=" + address);
-          }
-
-          var category = suggDishes[i]['categories'][0]['shortName'];
-
-          var distance = suggDishes[i].distance;
-          if (typeof(distance) == "undefined") {
-            distance = "";
-          }
-          var rank = i + 1;
-          var score = suggDishes[i].compositeScore;
-
-          var description = suggDishes[i].description;
-          if (description === undefined) {
-            description = "";
-          }
-          var price = suggDishes[i].price;
-          if (price === undefined) {
-            price = "";
-          } else {
-            price = "$" + price;
-          }
-
-          s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small><a href='"+dirUrl+"' target='_blank' class='text-dark' data-toggle='tooltip' title='Get directions'>" + address + " | "+ distance +"</a></small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> </div> </li>"
-
-          suggItems.push(s);
-
-        };
-
-        $("#suggGroup").html( suggItems.join("") );
-
-        // configure tooltips
-        $(function () {
-          $('[data-toggle="tooltip"]').tooltip()
-        })
-
-
-        //**************************************
-
         // configure tooltips
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
@@ -307,20 +241,6 @@
           });
 
           $("#"+dishes[i].dishKey).mouseleave(function () {
-            var dishKey = $(this)[0].id;
-            infoWindowClose(dishKey);
-          });
-        }
-
-        createMarkersForSuggDishes();
-        // watch for mouse events and bounce map markers when mouse over listitems
-        for (i=0; i < suggDishes.length; i++) {
-          $("#"+suggDishes[i].dishKey).mouseenter(function () {
-            var dishKey = $(this)[0].id;
-            suggInfoWindowOpen(dishKey);
-          });
-
-          $("#"+suggDishes[i].dishKey).mouseleave(function () {
             var dishKey = $(this)[0].id;
             infoWindowClose(dishKey);
           });
@@ -401,33 +321,6 @@
 
       }
 
-      function createMarkersForSuggDishes() {
-
-        var dishKeys = Object.keys(suggList);
-        for (i=0; i < dishKeys.length; i++) {
-          
-          var key = dishKeys[i];
-
-          if (suggList[key].marker == null) { 
-
-            suggList[key].marker = new google.maps.Marker({
-              position: {'lat': suggList[key].location.lat, 'lng': suggList[key].location.lng},
-              map: map
-            });
-          } 
-          else {
-            suggList[key].marker.setMap(map);
-          }
-
-          // extend map bounds to marker postion to allow auto center/zoom.
-          var loc = new google.maps.LatLng(suggList[key].marker.position.lat(), suggList[key].marker.position.lng());
-          bounds.extend(loc);
-        }
-
-        map.fitBounds(bounds);       // auto-zoom
-        map.panToBounds(bounds);     // auto-center
-      }
-
       function markerBounceOn(dishKey) {
         dishList[dishKey].marker.setAnimation(google.maps.Animation.BOUNCE);
       }
@@ -441,14 +334,6 @@
         infoWindow.setContent(contentString);
         infoWindow.open(map, dishList[dishKey].marker);
       }
-
-      function suggInfoWindowOpen(dishKey) {
-        var dish = suggList[dishKey];
-        var contentString = "<h6>"+dish.dish+"</h6><p>"+dish.venueName+"</p>";
-        infoWindow.setContent(contentString);
-        infoWindow.open(map, suggList[dishKey].marker);
-      }
-
       function infoWindowClose(dishKey) {
         infoWindow.close();
       }

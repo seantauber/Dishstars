@@ -103,7 +103,7 @@
 
       function loadDishes(withRefresh) {
         
-        $.getJSON( "https://insight-dishstars.appspot.com/api/searchResults/location/"+locId+"/dishes", dishesUpdated );
+        $.getJSON( "/api/searchResults/location/"+locId+"/dishes", dishesUpdated );
 
         if (withRefresh) {
           window.reloadInterval = setInterval( loadDishes, reloadIntervalTime );
@@ -193,6 +193,7 @@
           var venueName = dishes[i].venueName;
           var venueId = dishes[i].venueId;
           var address = dishes[i].location.address + ", " + dishes[i].location.city;
+          var dirUrl = encodeURI("https://www.google.com/maps/dir/?api=1&destination=" + address);
 
           var category = dishes[i]['categories'][0]['shortName'];
 
@@ -212,10 +213,10 @@
           }
 
           if (filterSaved) {
-            s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small>" + address + "</small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> </div> </li>"
+            s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small><a href='"+dirUrl+"' target='_blank' class='text-dark' data-toggle='tooltip' title='Get directions'>" + address + "</a></small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> </div> </li>"
           }
           else {
-            s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small>" + address + " | <a href=''>get directions</a></small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> <button type='button' class='btn btn-sm btn-outline-warning' id='button_" + dishKey + "' style='width: 100px' onclick=starButtonPressed('"+ dishKey +"')><small>Add</small></button> </div> </li>"
+            s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small><a href='"+dirUrl+"' target='_blank' class='text-dark' data-toggle='tooltip' title='Get directions'>" + address + "</a></small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> <button type='button' class='btn btn-sm btn-outline-warning' id='button_" + dishKey + "' style='width: 100px' onclick=starButtonPressed('"+ dishKey +"')><small>Add</small></button> </div> </li>"
           }
 
           items.push(s);
