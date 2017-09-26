@@ -106,19 +106,22 @@ class DishRecommender:
 		return sim
 
 
-	def getSimilar(self, dishKey, n):
+	def getSimilar(self, dishKey, n=5):
 		'''
 		'''
 		similar = self.similarityMatrix.loc[dishKey].nlargest(n)
 		return similar
 
 
-	def getSimilarToLiked(self, likedDishes):
+	def getSimilarToLiked(self, likedDishes, n=5):
 		'''
 		'''
 		similar = {}
 		for likedDish in likedDishes:
-			similar[likedDish] = self.getSimilar(likedDish, 2)
+			sim = self.getSimilar(likedDish, n)
+			# drop first value because it's the liked dish; convert to dict
+			sim = sim[sim.index[1:]].to_dict()
+			similar.update(sim)
 		return similar
 
 	
