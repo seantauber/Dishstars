@@ -12,4 +12,24 @@ class DishRecommender:
 	def dishUserMatrix(self, locationId):
 		'''
 		'''
-		dishes = geodish.loadPopularDishes(locationId, keysOnly=True)
+		dishUserLookup = {}
+		userDishLookup = {}
+
+		dishes = geodish.loadPopularDishes(locationId)
+
+		for dishKey, dishDetails in dishes.items():
+			for tip in dishDetails['dishTips']:
+				
+				if dishKey in dishUserLookup:
+					dishUserLookup[dishKey].append(tip['user'])
+				else:
+					dishUserLookup[dishKey] = [tip['user']]
+
+				if tip['user'] in userDishLookup:
+					userDishLookup[tip['user']].append(dishKey)
+				else:
+					userDishLookup[tip['user']] = [dishKey]
+
+		return {'dishUser': dishUserLookup, 'userDish':userDishLookup}
+	
+
