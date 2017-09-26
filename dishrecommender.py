@@ -113,7 +113,7 @@ class DishRecommender:
 		return similar
 
 
-	def getSimilarToLiked(self, likedDishes=self.userLikedDishes):
+	def getSimilarToLiked(self, likedDishes):
 		'''
 		'''
 		similar = {}
