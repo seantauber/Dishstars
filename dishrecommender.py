@@ -144,8 +144,8 @@ class DishRecommender:
 				valid = (recDishString != simDishString) and (recDishString not in recDishStrings)
 				if valid and item['dish'] not in results:
 					results[item['dish']] = recommendedDish
-					similarDish = similarDish
-					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName']}
+					results[item['dish']]
+					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName'], 'similarity': item['similarity']}
 					results[item['dish']]['similarTo'] = similarTo
 
 					recDishStrings.append(recDishString)
