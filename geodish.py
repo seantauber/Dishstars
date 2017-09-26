@@ -644,10 +644,18 @@ class Cache:
 		return self.dishfire.writeSavedDishList(data)
 
 	def loadUserDishList(self, key):
-		return self.dishfire.readSavedDishList(key)
+		r = self.dishfire.readSavedDishList(key)
+		if r is not None:
+			if 'timestamp' in r:
+				del r['timestamp']
+		return r
 
 	def loadUserRecommended(self, key):
-		return self.dishfire.readUserRecommended(key)
+		r = self.dishfire.readUserRecommended(key)
+		if r is not None:
+			if 'timestamp' in r:
+				del r['timestamp']
+		return r
 
 
 

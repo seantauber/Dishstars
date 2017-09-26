@@ -168,14 +168,14 @@
             return dishList[key];
           });
 
-        var suggDishes = Object.keys(suggList).map(function(key) {
-            return suggList[key];
-          });
+        // var suggDishes = Object.keys(suggList).map(function(key) {
+        //     return suggList[key];
+        //   });
 
-        var suggKeys = Object.keys(suggList);
-        for (i=0; i<suggKeys.length; i++) {
-          suggDishes[i].dishKey = suggKeys[i];
-        }
+        // var suggKeys = Object.keys(suggList);
+        // for (i=0; i<suggKeys.length; i++) {
+        //   suggDishes[i].dishKey = suggKeys[i];
+        // }
 
         if (distanceMatrix != null) {
           for (i=0; i<dishes.length; i++) {
@@ -235,6 +235,17 @@
 
         // **************************************
 
+        var suggDishes = Object.keys(suggList).map(function(key) {
+            return suggList[key];
+          });
+
+        var suggKeys = Object.keys(suggList);
+        for (i=0; i<suggKeys.length; i++) {
+          suggDishes[i].dishKey = suggKeys[i];
+        }
+
+        sortBy2Keys(suggDishes, 'similarTo', 'similarity', ascending=true);
+
         var suggItems = [];
 
         for (i=0; i<suggDishes.length; i++) {
@@ -272,7 +283,9 @@
             price = "$" + price;
           }
 
-          s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small><a href='"+dirUrl+"' target='_blank' class='text-dark' data-toggle='tooltip' title='Get directions'>" + address + " | "+ distance +"</a></small> <p></p> <div class='d-flex w-100 justify-content-between'> <span class='h6 text-dark'>" + score + " Recommendations</span> </div> </li>"
+          var recommendReason = "Recommended by people who liked <strong>" + suggDishes[i].similarTo.dish + "</strong> at " +suggDishes[i].similarTo.venueName;
+
+          s = "<li id='"+ dishKey +"' class='list-group-item list-group-item-action flex-column align-items-start'> <div class='d-flex w-100 justify-content-between'> <a href='https://foursquare.com/v/"+ venueId + "/menu' target='_blank' class='text-primary' data-toggle='tooltip' title='View in menu'> <h5 class='mb-1 text-primary'>"+ dishName + " </h5></a> <small>" + price + "</small> </div> <p class='mb-1'> " + description + "</p> </div> <div> <small> <a href='https://foursquare.com/v/"+ venueId + "' target='_blank' class='text-dark'><strong>" + venueName + "</strong></a> | "+ category + "</small> </div> <small><a href='"+dirUrl+"' target='_blank' class='text-dark' data-toggle='tooltip' title='Get directions'>" + address + " | "+ distance +"</a></small> <p></p>  <small class='text-info'>" + recommendReason + "</small>  </li>"
 
           suggItems.push(s);
 
@@ -333,6 +346,18 @@
       function sortByKey(array, key, ascending=true) {
         return array.sort(function(a, b) {
           var x = a[key]; var y = b[key];
+          if (ascending == true) {
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+          }
+          else {
+            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+          }
+        });
+      }
+
+      function sortBy2Keys(array, key1, key2, ascending=true) {
+        return array.sort(function(a, b) {
+          var x = a[key1][key2]; var y = b[key1][key2];
           if (ascending == true) {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
           }

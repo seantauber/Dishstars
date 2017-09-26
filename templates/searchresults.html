@@ -532,6 +532,7 @@
         
         // make a list for search locations
         var searchLocations = [];
+        var searchLocationIds = [];
 
         // Prepare the data
         for ( i=0; i < Object.keys(data).length ; i++) {
@@ -540,13 +541,16 @@
           delete data[ Object.keys(data)[i] ].marker;
 
           // get unique location names
-          var loc = data[ Object.keys(data)[i] ].searchLocationName;
-          if ( ! searchLocations.includes(loc) ) {
-            searchLocations.push(loc);
+          var dish = data[ Object.keys(data)[i] ];
+          if ( ! searchLocations.includes( dish.searchLocationName ) ) {
+            searchLocations.push( dish.searchLocationName );
+          }
+          if ( ! searchLocationIds.includes( dish.searchLocationId ) ) {
+            searchLocationIds.push( dish.searchLocationId) ;
           }
         }
 
-        var params = {'dishes': data, 'locations': searchLocations};
+        var params = {'dishes': data, 'locations': searchLocations, 'locationIds': searchLocationIds};
 
         // data.locations = searchLocations;
 
