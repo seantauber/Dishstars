@@ -117,11 +117,17 @@ class DishRecommender:
 		'''
 		'''
 		similar = []
+		# get top n similar for each liked dish
 		for likedDish in likedDishes:
 			sim = self.getSimilar(likedDish, n)
 			# drop first value because it's the liked dish; convert to dict
 			similar += [{'dish':item[0], 'similarity':item[1], 'similarTo':likedDish} for item in sim[sim.index[1:]].to_dict().items()]
+		
+		# sort them all by similarity
+		similar = sorted(similar, key=lambda x: x['similarity'])[::-1][:n]
 		return similar
+
+
 
 	
 	def getDataNeighbors(self, simMat):
