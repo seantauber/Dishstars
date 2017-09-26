@@ -111,9 +111,9 @@ class DishRecommender:
 		Construct a new dataframe with the 10 closest neighbours (most similar)
 		for each artist.
 		'''
-		data_neighbours = pd.DataFrame(index=data_matrix.columns, columns=range(1,11))
-		for i in xrange(0, len(data_matrix.columns)):
-			data_neighbours.ix[i,:10] = data_matrix.ix[0:,i].sort_values(ascending=False)[:10].index
+		dataNeighbours = pd.DataFrame(index=simMat.columns, columns=range(1,11))
+		for i in xrange(0, len(simMat.columns)):
+			dataNeighbours.ix[i,:10] = simMat.ix[0:,i].sort_values(ascending=False)[:10].index
 
 
 	def predictUserNeighborhood(self):
