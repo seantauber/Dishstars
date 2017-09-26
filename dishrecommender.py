@@ -131,7 +131,7 @@ class DishRecommender:
 		recDishStrings = []
 		totalItems = 0
 		for item in similar:
-			if totalItems < n and item['similarity'] >= .1:
+			if totalItems < n and item['similarity'] >= .05:
 				# skip dish if already added (first instance has highest similarity to a liked dish)
 				recommendedDish = self.locationDishes[item['dish']]
 				recDishString = recommendedDish['dish'] + recommendedDish['venueName']
@@ -143,10 +143,12 @@ class DishRecommender:
 				# also make sure the dish/venue string has not already been added to recommended
 				valid = (recDishString != simDishString) and (recDishString not in recDishStrings)
 				if valid and item['dish'] not in results:
-					results[item['dish']] = self.locationDishes[item['dish']]
-					similarDish = self.locationDishes[item['similarTo']]
+					results[item['dish']] = recommendedDish
+					similarDish = similarDish
 					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName']}
 					results[item['dish']]['similarTo'] = similarTo
+
+					recDishStrings.append(recDishString)
 					totalItems += 1
 			else:
 				return results
