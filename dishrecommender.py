@@ -6,17 +6,17 @@ from scipy import sparse
 
 class DishRecommender:
 
-	def __init__(self, userlikedDishes, locationDishes):
+	def __init__(self, userLikedDishes, locationDishes):
 		'''
 		'''
 		self.locationDishes = locationDishes
-		self.userlikedDishes = userlikedDishes
+		self.userLikedDishes = userLikedDishes
 
 		self.dishLookup = self.createDishLookup(self.locationDishes)
 		self.matrix = self.userByDishMatrix(self.locationDishes)
 		self.matrix = self.normalizeMatrix(self.matrix)
 
-		self.userlikedVec = self.userlikedDishesVec(self.userlikedDishes)
+		self.userlikedVec = self.userlikedDishesVec(self.userLikedDishes)
 		
 		# Build the similarity matrix
 		self.similarityMatrix = self.calculateSimilarity(self.matrix)
@@ -115,13 +115,15 @@ class DishRecommender:
 		for i in xrange(0, len(simMat.columns)):
 			dataNeighbours.ix[i,:10] = simMat.ix[0:,i].sort_values(ascending=False)[:10].index
 
+		return dataNeighbours
+
 
 	def predictUserNeighborhood(self):
 		'''
 		Construct the neighbourhood from the most similar items to the
 		ones our user has already liked.
 		'''
-		mostSimilarToLikes = self.dataNeighbors.ix[self.userlikedDishes]
+		mostSimilarToLikes = self.dataNeighbors.ix[self.userLikedDishes]
 		similarList = mostSimilarToLikes.values.tolist()
 		similarList = list(set([item for sublist in similarList for item in sublist]))
 		neighbourhood = self.similarityMatrix[similarList].ix[similarList]
