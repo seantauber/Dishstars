@@ -105,6 +105,13 @@ class DishRecommender:
 		sim = pd.DataFrame(data=similarities, index= data_items.columns, columns= data_items.columns)
 		return sim
 
+
+	def getSimilar(self, dishKey):
+		'''
+		'''
+		similar = self.similarityMatrix.loc[dishKey].nlargest(10)
+		return similar
+
 	
 	def getDataNeighbors(self, simMat):
 		'''
