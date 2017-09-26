@@ -115,7 +115,6 @@ class DishRecommender:
 
 	def getSimilarToLiked(self, likedDishes, n=5):
 		'''
-		Gets a maximum of n similar dishes but maybe less of n dishes don't fit criteria
 		'''
 		similar = []
 		# get top n similar for each liked dish
@@ -126,22 +125,19 @@ class DishRecommender:
 		
 		# sort them all by similarity
 		similar = sorted(similar, key=lambda x: x['similarity'])[::-1]
+		return similar
 		
 		# get the top n unique dishes and return all dish info
 		results = {}
-		recommendedDishStrings = []
 		totalItems = 0
 		for item in similar:
 			if totalItems < n and item['similarity'] >= .1:
 				# skip dish if already added (first instance has highest similarity to a liked dish)
-				dishString = item['dish'] + item['venueName']
-				if dishString not in recommendedDishStrings:
+				if item['dish'] not in results:
 					results[item['dish']] = self.locationDishes[item['dish']]
 					similarDish = self.locationDishes[item['similarTo']]
 					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName']}
 					results[item['dish']]['similarTo'] = similarTo
-
-					recommendedDishStrings.append(dishString)
 					totalItems += 1
 			else:
 				return results
