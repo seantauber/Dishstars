@@ -113,7 +113,7 @@ class DishRecommender:
 		return similar
 
 
-	def getSimilarToLiked(self, likedDishes, n=5):
+	def getSimilarToLiked(self, likedDishes, n=5, minSimilarity=.1):
 		'''
 		'''
 		similar = []
@@ -131,7 +131,7 @@ class DishRecommender:
 		recDishStrings = []
 		totalItems = 0
 		for item in similar:
-			if totalItems < n and item['similarity'] >= .05:
+			if totalItems < n and item['similarity'] >= minSimilarity:
 				# skip dish if already added (first instance has highest similarity to a liked dish)
 				recommendedDish = self.locationDishes[item['dish']]
 				recDishString = recommendedDish['dish'] + recommendedDish['venueName']
