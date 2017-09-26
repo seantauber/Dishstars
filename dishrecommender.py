@@ -125,15 +125,24 @@ class DishRecommender:
 		
 		# sort them all by similarity
 		similar = sorted(similar, key=lambda x: x['similarity'])[::-1]
-		return similar
-		
+
 		# get the top n unique dishes and return all dish info
 		results = {}
+		recDishStrings = []
 		totalItems = 0
 		for item in similar:
 			if totalItems < n and item['similarity'] >= .1:
 				# skip dish if already added (first instance has highest similarity to a liked dish)
-				if item['dish'] not in results:
+				recommendedDish = self.locationDishes[item['dish']]
+				recDishString = recommendedDish['dish'] + recommendedDish['venueName']
+				similarDish = self.locationDishes[item['similarTo']]
+				simDishString = similarDish['dish'] + similarDish['venueName']
+
+				# make sure the recommended dish is not same as similar dish based on name/venue
+				# just using dish key not always reliable if duplicates
+				# also make sure the dish/venue string has not already been added to recommended
+				valid = (recDishString != simDishString) and (recDishString not in recDishStrings)
+				if valid and item['dish'] not in results:
 					results[item['dish']] = self.locationDishes[item['dish']]
 					similarDish = self.locationDishes[item['similarTo']]
 					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName']}
