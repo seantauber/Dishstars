@@ -538,10 +538,10 @@ class GeoDish:
 		'''
 		self.cache.writePopularDishes(locationId, dishes)
 
-	def loadPopularDishes(self, locationId, keysOnly=False):
+	def loadPopularDishes(self, locationId):
 		'''
 		'''
-		dishes = self.cache.readPopularDishes(locationId, keysOnly)
+		dishes = self.cache.readPopularDishes(locationId)
 		# if dishes is not None:
 		# 	dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
 		# else:
@@ -611,8 +611,8 @@ class Cache:
 		return self.dishfire.writeGoogleNLPEntitySentiment(venueId, {'entities': data})
 
 
-	def readPopularDishes(self, locationId, keysOnly):
-		r = self.dishfire.readPopularDishes(locationId, shallow=keysOnly)
+	def readPopularDishes(self, locationId):
+		r = self.dishfire.readPopularDishes(locationId)
 		if r is not None:
 			r = r['dishes']
 			if 'timestamp' in r:

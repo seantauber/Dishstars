@@ -136,12 +136,9 @@ class DishstarsFirebase:
 			self.postData(url, dish)
 		
 
-	def readPopularDishes(self, locationId, shallow=False):
+	def readPopularDishes(self, locationId):
 
 		url = self._BASEURL + "cache/popularDishes/location/%s.json" % locationId
-		if shallow:
-			# get only the keys
-			url += "?shallow=true"
 		return self.getData(url)
 
 	def readLocationCacheTimestamp(self, locationId):
