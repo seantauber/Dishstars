@@ -113,7 +113,7 @@ class DishRecommender:
 		return similar
 
 
-	def getSimilarToLiked(self, likedDishes, n=5, minSimilarity=.1):
+	def recommendSimilarDishes(self, likedDishes, n=10, minSimilarity=.175):
 		'''
 		'''
 		similar = []
@@ -158,39 +158,39 @@ class DishRecommender:
 
 
 	
-	def getDataNeighbors(self, simMat):
-		'''
-		Construct a new dataframe with the 10 closest neighbours (most similar)
-		for each artist.
-		'''
-		dataNeighbours = pd.DataFrame(index=simMat.columns, columns=range(1,11))
-		for i in xrange(0, len(simMat.columns)):
-			dataNeighbours.ix[i,:10] = simMat.ix[0:,i].sort_values(ascending=False)[:10].index
+	# def getDataNeighbors(self, simMat):
+	# 	'''
+	# 	Construct a new dataframe with the 10 closest neighbours (most similar)
+	# 	for each artist.
+	# 	'''
+	# 	dataNeighbours = pd.DataFrame(index=simMat.columns, columns=range(1,11))
+	# 	for i in xrange(0, len(simMat.columns)):
+	# 		dataNeighbours.ix[i,:10] = simMat.ix[0:,i].sort_values(ascending=False)[:10].index
 
-		return dataNeighbours
+	# 	return dataNeighbours
 
 
-	def predictUserNeighborhood(self):
-		'''
-		Construct the neighbourhood from the most similar items to the
-		ones our user has already liked.
-		'''
-		mostSimilarToLikes = self.dataNeighbors.ix[self.userLikedDishes]
-		similarList = mostSimilarToLikes.values.tolist()
-		similarList = list(set([item for sublist in similarList for item in sublist]))
-		neighbourhood = self.similarityMatrix[similarList].ix[similarList]
+	# def predictUserNeighborhood(self):
+	# 	'''
+	# 	Construct the neighbourhood from the most similar items to the
+	# 	ones our user has already liked.
+	# 	'''
+	# 	mostSimilarToLikes = self.dataNeighbors.ix[self.userLikedDishes]
+	# 	similarList = mostSimilarToLikes.values.tolist()
+	# 	similarList = list(set([item for sublist in similarList for item in sublist]))
+	# 	neighbourhood = self.similarityMatrix[similarList].ix[similarList]
 
-		# A user vector containing only the neighbourhood items and
-		# the known user likes.
-		userVector = self.userlikedVec.ix[similarList]
+	# 	# A user vector containing only the neighbourhood items and
+	# 	# the known user likes.
+	# 	userVector = self.userlikedVec.ix[similarList]
 
-		# Calculate the score.
-		score = neighbourhood.dot(userVector).div(neighbourhood.sum(axis=1))
+	# 	# Calculate the score.
+	# 	score = neighbourhood.dot(userVector).div(neighbourhood.sum(axis=1))
 
-		# Drop the known likes.
-		score = score.drop(self.userLikedDishes)
+	# 	# Drop the known likes.
+	# 	score = score.drop(self.userLikedDishes)
 
-		return score
+	# 	return score
 
 
 
