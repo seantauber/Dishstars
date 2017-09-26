@@ -93,7 +93,11 @@ def getDishList(key):
 
 	geoDish = GeoDish()
 	userData = geoDish.loadUserDishList(key)
+	if userData is None:
+		abort(404)
 	userSugg = geoDish.loadUserRecommended(key)
+	if userSugg is None:
+		userSugg = {}
 	userData['sugg'] = userSugg
 	return jsonify(userData)
 
