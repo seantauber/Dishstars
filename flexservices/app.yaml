@@ -1,0 +1,6 @@
+service: srv
+runtime: custom
+env: flex
+
+health_check:
+  enable_health_check: False
