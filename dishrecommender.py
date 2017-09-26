@@ -120,7 +120,7 @@ class DishRecommender:
 		for likedDish in likedDishes:
 			sim = self.getSimilar(likedDish, n)
 			# drop first value because it's the liked dish; convert to dict
-			similar += [item for item in sim[sim.index[1:]].to_dict().values()]
+			similar += [item for item in sim[sim.index[1:]].to_dict().items()]
 		return similar
 
 	
