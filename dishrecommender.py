@@ -76,7 +76,8 @@ class DishRecommender:
 		'''
 		vec = np.zeros(len(self.di))
 		for dish in dishes:
-			vec[self.di[dish]] = 1
+			if dish in self.di:
+				vec[self.di[dish]] = 1
 
 		return vec
 
