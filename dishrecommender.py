@@ -125,6 +125,7 @@ class DishRecommender:
 		
 		# sort them all by similarity
 		similar = sorted(similar, key=lambda x: x['similarity'])[::-1]
+		return similar
 		
 		# get the top n unique dishes and return all dish info
 		results = {}
