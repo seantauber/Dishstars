@@ -427,6 +427,7 @@ class GeoDish:
 			for entity in highMatch:
 				if entity['dish'] in topDishes:
 					topDishes[entity['dish']]['compositeScore'] += entity['compositeScore']
+					topDishes[entity['dish']]['dishTips'] += entity['dishTips']
 				else:
 					topDishes[entity['dish']] = entity
 
