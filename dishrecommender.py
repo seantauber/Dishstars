@@ -54,13 +54,13 @@ class DishRecommender:
 				else:
 					userDishLookup[tip['user']] = [dishKey]
 
-		ui = dict(zip(udm.keys(), range(len(udm.keys()))))
-		di = dict(zip(dum.keys(), range(len(dum.keys()))))
+		ui = dict(zip(userDishLookup.keys(), range(len(userDishLookup.keys()))))
+		di = dict(zip(dishUserLookup.keys(), range(len(dishUserLookup.keys()))))
 		userLabels = sorted(ui, key=ui.get)
 		dishLabels = sorted(di, key=di.get)
 
 		mat = np.zeros((len(ui), len(di)))
-		for user, dishes in udm.items():
+		for user, dishes in userDishLookup.items():
 			for dish in dishes:
 				mat[ui[user], di[dish]] = 1
 
