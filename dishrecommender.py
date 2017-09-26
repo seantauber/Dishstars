@@ -12,8 +12,8 @@ class DishRecommender:
 		self.locationDishes = locationDishes
 		self.userlikedDishes = userlikedDishes
 
-		self.dishLookup = self.createDishLookup(self.self.locationDishes)
-		self.matrix = self.userByDishMatrix(self.self.locationDishes)
+		self.dishLookup = self.createDishLookup(self.locationDishes)
+		self.matrix = self.userByDishMatrix(self.locationDishes)
 		self.matrix = self.normalizeMatrix(self.mat)
 
 		self.userlikedVec = self.userlikedDishesVec(self.userLikedDishes)
