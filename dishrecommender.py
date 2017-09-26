@@ -21,7 +21,7 @@ class DishRecommender:
 		# Build the similarity matrix
 		self.similarityMatrix = self.calculateSimilarity(self.matrix)
 
-		self.dataNeighbors = self.getDataNeighbors(self.similarityMatrix)
+		# self.dataNeighbors = self.getDataNeighbors(self.similarityMatrix)
 
 
 
