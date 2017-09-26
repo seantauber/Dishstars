@@ -16,7 +16,7 @@ class DishRecommender:
 		self.matrix = self.userByDishMatrix(self.locationDishes)
 		self.matrix = self.normalizeMatrix(self.matrix)
 
-		self.userlikedVec = self.userlikedDishesVec(self.userLikedDishes)
+		self.userlikedVec = self.userlikedDishesVec(self.userlikedDishes)
 		
 		# Build the similarity matrix
 		self.similarityMatrix = calculateSimilarity(self.matrix)
