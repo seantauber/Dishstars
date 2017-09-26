@@ -6,7 +6,7 @@ class DishRecommender:
 	def __init__(self):
 		'''
 		'''
-		self. geodish = GeoDish()
+		self.geodish = GeoDish()
 
 
 	def dishUserMatrix(self, locationId):
@@ -15,7 +15,7 @@ class DishRecommender:
 		dishUserLookup = {}
 		userDishLookup = {}
 
-		dishes = geodish.loadPopularDishes(locationId)
+		dishes = self.geodish.loadPopularDishes(locationId)
 
 		for dishKey, dishDetails in dishes.items():
 			for tip in dishDetails['dishTips']:
@@ -31,5 +31,5 @@ class DishRecommender:
 					userDishLookup[tip['user']] = [dishKey]
 
 		return {'dishUser': dishUserLookup, 'userDish':userDishLookup}
-	
+
 
