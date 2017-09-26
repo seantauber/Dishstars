@@ -139,6 +139,7 @@ class DishRecommender:
 					totalItems += 1
 			else:
 				return results
+		return results
 
 
 
