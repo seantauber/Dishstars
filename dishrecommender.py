@@ -136,6 +136,7 @@ class DishRecommender:
 					results[item['dish']] = self.locationDishes[item['dish']]
 					similarDish = self.locationDishes[item['similarTo']]
 					similarTo = {'dish': similarDish['dish'], 'venueName': similarDish['venueName']}
+					results[item['dish']].update(similarTo)
 					totalItems += 1
 			else:
 				return results
