@@ -322,7 +322,8 @@ class GeoDish:
 			d['salience'] = entity['salience']
 			d['score'] = entity['sentiment']['score']
 			d['magnitude'] = entity['sentiment']['magnitude']
-			d['tipIndex'] = self.tipIndexForMention(entity['mentions'], tips)
+			# d['tipIndex'] = self.tipIndexForMention(entity['mentions'], tips)
+			d['dishTips'] = self.tipsForDish(entity['mentions'], tips)
 
 			# d['mentions'] = []
 			# for mention in entity['mentions']:
@@ -347,6 +348,18 @@ class GeoDish:
 			tipIndex.append(self.tipIndexFromOffset(offsetLookup, mention['text']['beginOffset']))
 
 		return tipIndex
+
+	def tipsForDish(self, mentions, tips):
+		'''
+		'''
+		tipIndex = self.tipIndexForMention(mentions, tips)
+		dishTips = []
+		for i in tipIndex:
+			tip = {'tipIndex': i, 'user': tips[i]['user']['id'], 'text':tips[i]['text']}
+			dishTips.append(tip)
+
+		return dishTips
+
 
 
 
@@ -525,10 +538,10 @@ class GeoDish:
 		'''
 		self.cache.writePopularDishes(locationId, dishes)
 
-	def loadPopularDishes(self, locationId):
+	def loadPopularDishes(self, locationId, keysOnly=False):
 		'''
 		'''
-		dishes = self.cache.readPopularDishes(locationId)
+		dishes = self.cache.readPopularDishes(locationId, keysOnly)
 		# if dishes is not None:
 		# 	dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
 		# else:
@@ -598,8 +611,8 @@ class Cache:
 		return self.dishfire.writeGoogleNLPEntitySentiment(venueId, {'entities': data})
 
 
-	def readPopularDishes(self, locationId):
-		r = self.dishfire.readPopularDishes(locationId)
+	def readPopularDishes(self, locationId, keysOnly):
+		r = self.dishfire.readPopularDishes(locationId, shallow=keysOnly)
 		if r is not None:
 			r = r['dishes']
 			if 'timestamp' in r:
