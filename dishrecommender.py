@@ -124,7 +124,7 @@ class DishRecommender:
 			similar += [{'dish':item[0], 'similarity':item[1], 'similarTo':likedDish} for item in sim[sim.index[1:]].to_dict().items()]
 		
 		# sort them all by similarity
-		similar = sorted(similar, key=lambda x: x['similarity'])[::-1][:n]
+		similar = sorted(similar, key=lambda x: x['similarity'])[::-1]
 		return similar
 		
 		# get the top n unique dishes and return all dish info
