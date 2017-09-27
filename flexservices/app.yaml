@@ -1,6 +1,7 @@
-service: srv
-runtime: custom
+service: flxone
+runtime: python
 env: flex
+entrypoint: gunicorn -c gunicorn.conf.py -b :$PORT main:app
 
 health_check:
   enable_health_check: False

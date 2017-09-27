@@ -74,6 +74,16 @@ def saveDishList():
 
 	geoDish = GeoDish()
 	listKey = geoDish.saveUserDishList(data)
+	likedDishes = data['dishes'].keys()
+	locationIds = data['locationIds']
+
+	taskData = {'likedDishes': likedDishes, 'locationIds': locationIds, 'savedListId': listKey}
+
+	# initiate recommend dishes task
+	taskqueue.add(url='/tasks/generateRecommendations', 
+		target='flxone',
+		payload=json.dumps(taskData))
+
 	return jsonify({'listKey': listKey})
 
 
@@ -195,30 +205,32 @@ def processEntitySentiment():
 	if len(entitySentiment) > 0:
 		data[u'venue'][u'entitySentiment'] = entitySentiment
 		dataKey = geoDish.pushQueueData(data)
-		taskqueue.add(url='/tasks/processPopularDishes', payload=json.dumps({'dataKey': dataKey}))
+		taskqueue.add(url='/tasks/processPopularDishes', 
+			target='flxone',
+			payload=json.dumps({'dataKey': dataKey}))
 
 	return 'ok'
 
 
-@app.route('/tasks/processPopularDishes', methods=['POST'])
-def processPopularDishes():
+# @app.route('/tasks/processPopularDishes', methods=['POST'])
+# def processPopularDishes():
 
-	geoDish = GeoDish()
+# 	geoDish = GeoDish()
 
-	dataKey = json.loads(request.data)['dataKey']
-	data = geoDish.pullQueueData(dataKey)
-	if data is None:
-		return 'ok'
-	venue = data[u'venue']
-	locationId = data[u'locationId']
+# 	dataKey = json.loads(request.data)['dataKey']
+# 	data = geoDish.pullQueueData(dataKey)
+# 	if data is None:
+# 		return 'ok'
+# 	venue = data[u'venue']
+# 	locationId = data[u'locationId']
 
-	geoDish = GeoDish()
-	popularDishes = geoDish.findTopDishesForVenue(venue)
+# 	geoDish = GeoDish()
+# 	popularDishes = geoDish.findTopDishesForVenue(venue)
 
-	if len(popularDishes) > 0:
-		geoDish.savePopularDishes(locationId, popularDishes)
+# 	if len(popularDishes) > 0:
+# 		geoDish.savePopularDishes(locationId, popularDishes)
 
-	return 'ok'
+# 	return 'ok'
 
 
 

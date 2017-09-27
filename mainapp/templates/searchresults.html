@@ -482,6 +482,9 @@
         // Disabled form elements will not be serialized.
         $inputs.prop("disabled", true);
 
+        $("#afterSave").hide();
+        $("#popularDishesGroup").html("loading...");
+
         // Fire off the request
         request = $.ajax({
             url: "{{ url_for('findDishes') }}",
