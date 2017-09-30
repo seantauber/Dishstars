@@ -17,6 +17,21 @@ def mainPage():
 	return render_template('searchresults.html', demo=demo)
 
 
+@app.route('/slides', methods=['GET'])
+def projectSlides():
+	'''
+	google slides for insight project
+	'''
+	return redirect('https://docs.google.com/presentation/d/1LcKsxwMTPtc2H9iPjcmpotoB5iI0Q3Yuu65gCtwi4sA/edit?usp=sharing')
+
+
+@app.route('/demo', methods=['GET'])
+def demoList():
+	'''
+	fixed url for demo saved list
+	'''
+	return redirect('https://dishstars.com/dishlist/-Kv2fjIaupVAyBHUH57r?demo=1')
+
 @app.route('/findDishes', methods=['POST'])
 def findDishes():
 

@@ -12,7 +12,11 @@
   <body>
 
     <nav class="navbar sticky-top navbar-light bg-light">
-        <a class="navbar-brand">DishSTARS</a>
+      <div class="navbar-header">
+        <a class="navbar-brand" href="">
+        <img src="{{ url_for('static', filename='images/dishstars_logo.png') }}" alt="DishSTARS" style="max-height:30px">
+        </a>
+      </div>
     </nav>
 
     <div class="container-fluid" style="height: 100%">
@@ -126,7 +130,7 @@
               origins: [userPos],
               destinations: destinations,
               travelMode: 'DRIVING',
-              unitSystem: google.maps.UnitSystem.METRIC
+              unitSystem: google.maps.UnitSystem.IMPERIAL
             }, callback);
 
           function callback(response, status) {
@@ -141,7 +145,7 @@
                 var results = response.rows[i].elements;
                 for (var j = 0; j < results.length; j++) {
                   var element = results[j];
-                  var distance = element.distance.text;
+                  var distance = element.distance;
                   var duration = element.duration.text;
                   var from = origins[i];
                   var to = destinations[j];
@@ -181,7 +185,8 @@
           for (i=0; i<dishes.length; i++) {
             dishes[i].distance = distanceMatrix[i];
           }
-          sortByKey(dishes, 'distance', ascending=true);
+          // sortByKey(dishes, 'distance', ascending=true);
+          sortBy2Keys(dishes, 'distance','value', ascending=true);
         } else {
           sortByKey(dishes, 'compositeScore', ascending=false);
         }
@@ -206,7 +211,7 @@
 
           var category = dishes[i]['categories'][0]['shortName'];
 
-          var distance = dishes[i].distance;
+          var distance = dishes[i].distance.text;
           if (typeof(distance) == "undefined") {
             distance = "";
           }
@@ -520,11 +525,12 @@
 
         if (demo) {
           // Using a preset location
-          // 3rd Street Promenade Santa Monica
+          // Santa Monica Pier
+          // 34.0101° N, 118.4962° W
           var pos = {
             coords: {
-              latitude: 34.016552,
-              longitude: -118.497178
+              latitude: 34.0101,
+              longitude: -118.4962
             }
           };
           handleLocationSuccess(pos);
