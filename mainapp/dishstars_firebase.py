@@ -16,7 +16,6 @@ _firebase_credentials = ServiceAccountCredentials.from_json_keyfile_name(_FIREBA
 	_FIREBASE_CFG["scopes"])
 _firebase_credentials.get_access_token()
 
-_BASEURL = "https://insight-dishstars.firebaseio.com/"
 
 
 class DishstarsFirebase:
@@ -24,7 +23,7 @@ class DishstarsFirebase:
 	def __init__(self):
 		'''
 		'''
-		self._BASEURL = _BASEURL
+		self._BASEURL = FIREBASE_CFG['datebaseURL']
 		self._credentials = _firebase_credentials
 
 	def _access_token(self):
