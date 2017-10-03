@@ -19,21 +19,24 @@ def mainPage():
 
 @app.route('/slides', methods=['GET'])
 def projectSlides():
-	'''
-	google slides for insight project
-	'''
+	"""Google slides for insight project."""
 	return redirect('https://docs.google.com/presentation/d/1LcKsxwMTPtc2H9iPjcmpotoB5iI0Q3Yuu65gCtwi4sA/edit?usp=sharing')
 
 
 @app.route('/demo', methods=['GET'])
 def demoList():
-	'''
-	fixed url for demo saved list
-	'''
+	"""Fixed url for demo saved list"""
 	return redirect('https://dishstars.com/dishlist/-Kv2fjIaupVAyBHUH57r?demo=1')
 
 @app.route('/findDishes', methods=['POST'])
 def findDishes():
+	"""Initiate the search process for dishes in a location.
+	If dishes are not cached alread, initiates a task queue sequence that
+	will process the dishes for the location.
+
+	Returns info about the location so dishes can be retrieved 
+	via JS on the front end.
+	"""
 
 	nearLocation = request.form['near']
 
@@ -58,11 +61,13 @@ def findDishes():
 
 	data = {'locationId': locationId, 'locationName': locationName, 'latLng': geo['center']}
 	return jsonify(data)
-	# return redirect(url_for('locationResults', locationId=locationId, lat=geo['center']['lat'], lng=geo['center']['lng']))
 
 
 @app.route('/results/location/<locationId>', methods=['GET'])
 def locationResults(locationId):
+	"""Render the the location results template 
+	along with some location info.
+	"""
 
 	geoDish = GeoDish()
 	locationName = urlsafe_b64decode(locationId.encode('utf8')).decode('utf8')
@@ -74,6 +79,7 @@ def locationResults(locationId):
 
 @app.route('/api/searchResults/location/<locationId>/dishes', methods=['GET'])
 def getPopularDishes(locationId):
+	"""Returns the dishes for location."""
 
 	geoDish = GeoDish()
 	dishes = geoDish.loadPopularDishes(locationId)
@@ -84,6 +90,7 @@ def getPopularDishes(locationId):
 
 @app.route('/api/saveDishList', methods=['POST'])
 def saveDishList():
+	"""Save a user dish list"""
 
 	data = request.get_json(force=True)
 
@@ -104,9 +111,7 @@ def saveDishList():
 
 @app.route('/dishlist/<key>', methods=['GET'])
 def loadDishList(key):
-
-	geoDish = GeoDish()
-	data = geoDish.loadUserDishList(key)
+	"""Render saved dish list template."""
 
 	demo = 0
 	if 'demo' in request.args:
@@ -115,6 +120,7 @@ def loadDishList(key):
 
 @app.route('/api/dishlist/<key>', methods=['GET'])
 def getDishList(key):
+	"""Returns a saved dish list."""
 
 	geoDish = GeoDish()
 	userData = geoDish.loadUserDishList(key)
@@ -129,6 +135,7 @@ def getDishList(key):
 
 @app.route('/dishlist/sendEmail', methods=['POST'])
 def sendDishListByEmail():
+	"""Send email notification containing dish list info"""
 
 	email = request.form['email']
 	url = request.form['urlField']
@@ -140,6 +147,7 @@ def sendDishListByEmail():
 
 
 def sendEmail(email, url, location):
+	"""Sends the email."""
 
 	mail.send_mail(sender="Dishstars <seanetauber@gmail.com>",
                    to=email,
@@ -155,6 +163,7 @@ The Dishstars Team
 
 @app.route('/_ah/mail/', methods=['GET', 'POST'])
 def incomingEmail():
+	"""Handle incoming mail."""
 	pass
 
 
@@ -225,32 +234,4 @@ def processEntitySentiment():
 			payload=json.dumps({'dataKey': dataKey}))
 
 	return 'ok'
-
-
-# @app.route('/tasks/processPopularDishes', methods=['POST'])
-# def processPopularDishes():
-
-# 	geoDish = GeoDish()
-
-# 	dataKey = json.loads(request.data)['dataKey']
-# 	data = geoDish.pullQueueData(dataKey)
-# 	if data is None:
-# 		return 'ok'
-# 	venue = data[u'venue']
-# 	locationId = data[u'locationId']
-
-# 	geoDish = GeoDish()
-# 	popularDishes = geoDish.findTopDishesForVenue(venue)
-
-# 	if len(popularDishes) > 0:
-# 		geoDish.savePopularDishes(locationId, popularDishes)
-
-# 	return 'ok'
-
-
-
-
-
-
-
 

@@ -1,9 +1,11 @@
+import json
+
 import requests
 from requests import HTTPError
 from requests.packages.urllib3.contrib.appengine import is_appengine_sandbox
 import requests_toolbelt
 from requests_toolbelt.adapters import appengine
-import json
+
 from nlpcred import GOOGLE_API_KEY
 
 if is_appengine_sandbox():
@@ -11,17 +13,16 @@ if is_appengine_sandbox():
 
 
 class GoogleLanguage:
+	"""An http interface to the Google Natural Language Processing API."""
 
 	def __init__(self):
-		'''
-		'''
 		self.url = 'https://language.googleapis.com/v1beta2/documents:analyzeEntitySentiment'
 
 	
 	def analyzeEntitySentiment(self, text):
-		'''
-		'''
-
+		"""Call the Google NLP to perform entity sentiment analysis
+		on the text.
+		"""
 		params = {'key': GOOGLE_API_KEY}
 
 		data = {}

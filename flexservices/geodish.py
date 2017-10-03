@@ -1,29 +1,41 @@
-import sys, os
+import sys
+import os
 import json
-import foursquare
-from fscred import CLIENT_ID, CLIENT_SECRET
 from base64 import b64encode, urlsafe_b64encode
+
+import foursquare
 import six
-from google_language import GoogleLanguage
 from fuzzywuzzy import process
+
+from google_language import GoogleLanguage
+from fscred import CLIENT_ID, CLIENT_SECRET
 from dishstars_firebase import DishstarsFirebase
 
 
 
 class GeoDish:
 
-	def __init__(self):
+	def __init__(self, minSentimentScore=0.2, minFuzzyDishMatchingScore=90):
+		"""Initialize the Geodish object
+
+		minSentiment score is the minumum score for an entity to be
+		considered to have positive sentiment: Range is from -1 to +1.
+
+		minFuzzyDishMatchingScore is the minimum score for success when
+		matching entities from tip text to menu items: Range is from 0 to 100.
+		"""
 		self.fsClient = foursquare.Foursquare(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 		self.fsExploreParams = {'section': 'food', 'limit': 500, 'openNow': 0}
 		self.googleLanguage = GoogleLanguage()
 		self.foursquareApiCallCount = 0
 		self.googleApiCallCount = 0
 		self.cache = Cache()
+		self.minSentimentScore = minSentimentScore
+		self.minFuzzyDishMatchingScore = minFuzzyDishMatchingScore
 
 
 	def processLocation(self, nearLocation):
-		'''
-		'''
+		"""All steps to find and save top dishes for a location."""
 		print "getting dishes"
 		self.getDishes(nearLocation)
 		print "analyzing entity sentiment"
@@ -35,13 +47,13 @@ class GeoDish:
 
 
 	def getDishes(self, nearLocation):
-		'''
-		'''
+		"""Get restaurants, menus and tips from Foursquare"""
 		self.location = nearLocation
 		updatedVenues = []
 		venues = self.getRestaurants(nearLocation)
 		for venue in venues:
 			dishes = self.getDishesFromMenu(venue)
+			# only get tips if there are dishes for this restaurant
 			if len(dishes) > 0:
 				tips = self.getTips(venue)
 				venue.update({u'dishes': dishes, u'tips': tips})
@@ -53,15 +65,15 @@ class GeoDish:
 
 
 	def entitySentimentAnalysis(self):
-		'''
-		'''
+		"""Run entity sentiment analysis for each venue."""
 		for venue in self.venues.values():
 			venue['entitySentiment'] = self.analyzeReviewSentiment(venue)
 
 
 	def findTopDishes(self):
-		'''
-		'''
+		"""Find top dishes for each venue and then use these to find top
+		dishes overall for the location.
+		"""
 		n = len(self.venues)
 		for i, venue in enumerate(self.venues.values()):
 			print "%s/%s %s" % (i, n, venue['name'])
@@ -75,8 +87,7 @@ class GeoDish:
 
 
 	def save(self):
-		'''
-		'''
+		"""Save loaded venue information for the location to a json file."""
 		fname = 'saved_locations/%s.json' % self.location
 		f = open(fname, 'wb')
 		json.dump(self.venues, f)
@@ -84,8 +95,7 @@ class GeoDish:
 
 
 	def load(self, location):
-		'''
-		'''
+		"""Load venue information for location from json file (must exist)"""
 		self.location = location
 		fname = 'saved_locations/%s.json' % self.location
 		f = open(fname, 'rb')
@@ -94,8 +104,9 @@ class GeoDish:
 
 
 	def getRestaurants(self, nearLocation):
-		'''
-		'''
+		"""Get restaurants from Foursquare.
+		Returns only restaurants with menu data available.
+		"""
 		items = self.foursquareExplore(nearLocation)
 
 		venuesWithMenus = []
@@ -108,13 +119,13 @@ class GeoDish:
 
 
 	def foursquareExplore(self, nearLocation):
-		'''
-		'''
+		"""Query the Foursquare Explore API for venues."""
 		params = self.fsExploreParams
 		params.update({'near': nearLocation})
 
 		r = self.fsClient.venues.explore(params=params)
 		self.foursquareApiCallCount += 1
+		# save the geocode info which has the proper location info.
 		self.geocode = r['geocode']
 
 		return r['groups'][0]['items']
@@ -122,9 +133,9 @@ class GeoDish:
 
 
 	def getDishesFromMenu(self, venue):
-		'''
-		'''
-		# check cache
+		"""Get menu data from Foursquare."""
+		
+		# check if menu in cache
 		menu = self.cache.readMenu(venue['id'])
 
 		if menu is None:
@@ -136,14 +147,19 @@ class GeoDish:
 		return dishes
 
 	def parseMenu(self, menuDict):
-		'''
-		'''
+		"""Parse the json menu data received from Foursquare and return
+		a list of menu items.
+		"""
 		
 		menuItems = []
 
 		def getMenuItem(d, sectionPath=""):
+			"""Recursuve function to parse json menu data"""
+
 			if 'menuId' in d or 'sectionId' in d:
+				# this node is a menu or section header
 				if 'name' in d:
+					# add section header to the current section path
 					if sectionPath != "":
 						sectionPath += " | %s" % d['name']
 					else:
@@ -179,8 +195,8 @@ class GeoDish:
 
 
 	def getTips(self, venue):
-		'''
-		'''
+		"""Get tips for venue from Foursquare."""
+		
 		# check cache
 		tips = self.cache.readTips(venue['id'])
 
@@ -192,16 +208,11 @@ class GeoDish:
 			# cache the tips
 			self.cache.writeTips(venue['id'], tips)
 
-		# self.createTipIndex(tips)
-
 		return tips
 
 
 	def createTipOffsetLookup(self, tips):
-		'''
-		'''
-
-
+		"""Create a list with cumulative sum of tip lengths."""
 		lenSum = [len(tips[0]['text'])]
 		if len(tips) > 1:
 			for tip in tips[1:]:
@@ -211,8 +222,9 @@ class GeoDish:
 
 	
 	def tipIndexFromOffset(self, offsetLookup, offset):
-		'''
-		'''
+		"""Returns the tip index that contains the offset vale.
+		Requires a precomputed offsetLookup.
+		"""
 		if len(offsetLookup) == 1:
 			return 0
 
@@ -224,8 +236,9 @@ class GeoDish:
 
 
 	def tipText(self, tips):
-		'''
-		'''
+		"""Returns a string containing the concatenated text from all the
+		tips, separated by a newline character.
+		"""
 		text = u''
 		for tip in tips:
 			text += tip['text'] + "\n"
@@ -234,15 +247,13 @@ class GeoDish:
 
 
 	def analyzeReviewSentiment(self, venue):
-		'''
-		'''
+		"""Get entity sentiment analysis results for a venue's tips"""
+		
 		# check cache
 		entitySentiment = self.cache.readEntity(venue['id'])
 
 		if entitySentiment is None:
 			tipText = self.tipText(venue['tips'])
-			# result = self.entitySentimentText(tipText)
-			# entitySentiment = self.entitySentimentResultToJsonCompatible(result)
 			result = self.googleLanguage.analyzeEntitySentiment(tipText)
 			entitySentiment = self.reformatEntitySentimentObject(result, venue['tips'])
 
@@ -251,70 +262,8 @@ class GeoDish:
 
 		return entitySentiment
 
-
-
-	# def entitySentimentText(self, text, verbose=False):
-	# 	"""Detects entity sentiment in the provided text."""
-	# 	client = language_v1beta2.LanguageServiceClient()
-
-	# 	if isinstance(text, six.binary_type):
-	# 		text = text.decode('utf-8')
-
-	# 	document = types.Document(
-	# 		content=text.encode('utf-8'),
-	# 		language='en',
-	# 		type=enums.Document.Type.PLAIN_TEXT)
-
-	# 	# Pass in encoding type to get useful offsets in the response.
-	# 	encoding = enums.EncodingType.UTF32
-	# 	if sys.maxunicode == 65535:
-	# 		encoding = enums.EncodingType.UTF16
-
-	# 	result = client.analyze_entity_sentiment(document, encoding)
-	# 	self.googleApiCallCount += 1
-
-	# 	if verbose:
-	# 		for entity in result.entities:
-	# 			print('Mentions: ')
-	# 			print(u'Name: "{}"'.format(entity.name))
-	# 			for mention in entity.mentions:
-	# 				print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
-	# 				print(u'  Content : {}'.format(mention.text.content))
-	# 				print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
-	# 				print(u'  Sentiment : {}'.format(mention.sentiment.score))
-	# 				print(u'  Type : {}'.format(mention.type))
-	# 			print(u'Salience: {}'.format(entity.salience))
-	# 			print(u'Sentiment: {}\n'.format(entity.sentiment))
-
-	# 	return result
-
-
-	# def entitySentimentResultToJsonCompatible(self, result):
-	# 	'''
-	# 	'''
-	# 	r = []
-	# 	for entity in result.entities:
-	# 		d = {}
-	# 		d['name'] = entity.name
-	# 		d['salience'] = entity.salience
-	# 		d['score'] = entity.sentiment.score
-	# 		d['magnitude'] = entity.sentiment.magnitude
-	# 		d['mentions'] = []
-	# 		for mention in entity.mentions:
-	# 			m = {}
-	# 			m['beginOffset'] = mention.text.begin_offset
-	# 			m['content'] = mention.text.content
-	# 			m['magnitude'] = mention.sentiment.magnitude
-	# 			m['sentiment'] = mention.sentiment.score
-	# 			m['type'] = mention.type
-	# 			d['mentions'].append(m)
-	# 		r.append(d)
-
-	# 	return r
-
 	def reformatEntitySentimentObject(self, rawEntitySentimentObject, tips):
-		'''
-		'''
+		"""Prepare the entity sentiment data."""
 		r = []
 		for entity in rawEntitySentimentObject:
 			d = {}
@@ -322,26 +271,16 @@ class GeoDish:
 			d['salience'] = entity['salience']
 			d['score'] = entity['sentiment']['score']
 			d['magnitude'] = entity['sentiment']['magnitude']
-			# d['tipIndex'] = self.tipIndexForMention(entity['mentions'], tips)
+			# get the tips associated with each entity
 			d['dishTips'] = self.tipsForDish(entity['mentions'], tips)
-
-			# d['mentions'] = []
-			# for mention in entity['mentions']:
-			# 	m = {}
-			# 	m['beginOffset'] = mention['text']['beginOffset']
-			# 	m['content'] = mention['text']['content']
-			# 	m['magnitude'] = mention['sentiment']['magnitude']
-			# 	m['sentiment'] = mention['sentiment']['score']
-			# 	m['type'] = mention['type']
-			# 	d['mentions'].append(m)
-
 			r.append(d)
 
 		return r
 
 	def tipIndexForMention(self, mentions, tips):
-		'''
-		'''
+		"""Find the index of the tip associated with each of the mentions
+		obtained from sentiment analysis.
+		"""
 		offsetLookup = self.createTipOffsetLookup(tips)
 		tipIndex = []
 		for mention in mentions:
@@ -350,8 +289,7 @@ class GeoDish:
 		return tipIndex
 
 	def tipsForDish(self, mentions, tips):
-		'''
-		'''
+		"""Get the tips associated with each mention."""
 		tipIndex = self.tipIndexForMention(mentions, tips)
 		dishTips = []
 		for i in tipIndex:
@@ -361,31 +299,11 @@ class GeoDish:
 		return dishTips
 
 
-
-
-	# def printEntitySentimentResult(self, result):
-	# 	'''
-	# 	'''
-	# 	for entity in result.entities:
-	# 		print('Mentions: ')
-	# 		print(u'Name: "{}"'.format(entity.name))
-	# 		for mention in entity.mentions:
-	# 			print(u'  Begin Offset : {}'.format(mention.text.begin_offset))
-	# 			print(u'  Content : {}'.format(mention.text.content))
-	# 			print(u'  Magnitude : {}'.format(mention.sentiment.magnitude))
-	# 			print(u'  Sentiment : {}'.format(mention.sentiment.score))
-	# 			print(u'  Type : {}'.format(mention.type))
-	# 		print(u'Salience: {}'.format(entity.salience))
-	# 		print(u'Sentiment: {}\n'.format(entity.sentiment))
-
-
-
 	def findTopDishesForVenue(self, venue, debug=False):
-		'''
-		'''
-
+		"""Find the dishes with the most positive mentions for this venue"""
 		try:
 			if len(venue['entitySentiment']) == 0:
+				# No positive mentions
 				venue['topDishes'] = []
 				return
 
@@ -394,8 +312,10 @@ class GeoDish:
 
 			dishLookup = {}
 			for dish in dishes:
+				# Create a dish lookup hash
 				dishLookup[dish['name']] = dish
 
+			# Ensure no missing attributes
 			for dish in dishes:
 				if 'price' not in dish:
 					dish['price'] = None
@@ -405,8 +325,7 @@ class GeoDish:
 			# filter out entities with negative or neutral sentiment
 			posEntities = []
 			for entity in entities:
-				if entity['score'] > 0.2:
-					# entity['compositeScore'] = entity['score'] * entity['magnitude']
+				if entity['score'] > self.minSentimentScore:
 					entity['compositeScore'] = 1
 					posEntities.append(entity)
 
@@ -416,13 +335,15 @@ class GeoDish:
 			# Fuzzy string matching to find the best matching dish item for each entity
 			dishMatch = map(lambda x: process.extractOne(x, dishNames), posNames)
 
+			# Find all the dish names that meet minimum matching criteria
 			highMatch = []
 			for i, entity in enumerate(posEntities):
-				if dishMatch[i][1] >= 90:
+				if dishMatch[i][1] >= self.minFuzzyDishMatchingScore:
 					entity['dish'] = dishMatch[i][0]
 					entity['matchScore'] = dishMatch[i][1]
 					highMatch.append(entity)
 
+			# Aggregate the score for each of the top dishes.
 			topDishes = {}
 			for entity in highMatch:
 				if entity['dish'] in topDishes:
@@ -431,6 +352,7 @@ class GeoDish:
 				else:
 					topDishes[entity['dish']] = entity
 
+			# Add some details to the top dish items.
 			for dish in topDishes.values():
 				info = dishLookup[dish['dish']]
 				dish['price'] = info['price']
@@ -442,51 +364,6 @@ class GeoDish:
 
 			topDishes = topDishes.values()
 
-
-			# df = pd.DataFrame(venue['entitySentiment'], columns=['name','score','magnitude'])
-			# dishDf = pd.DataFrame(venue['dishes'])
-			# if 'price' not in dishDf.columns:
-			# 	dishDf['price'] = None
-			# if 'description' not in dishDf.columns:
-			# 	dishDf['description'] = None
-			
-			# filter out entities with negative or neutral sentiment
-			# df = df[df.score >= .2]
-			# df['compositeScore'] = df.score * df.magnitude
-
-
-			# Fuzzy string matching to find the best matching dish item for each entity
-			# dishMatch = df.apply(lambda x: process.extractOne(x['name'], dishDf.name), axis=1)
-
-			# df['dish'] = [result[0] for result in dishMatch]
-			# df['matchScore'] = [result[1] for result in dishMatch]
-
-			# filter out low match scores
-			# df = df[df.matchScore >= 90]
-
-			# if debug:
-			# 	print df
-			# 	print
-
-
-			# # Group by dish and combine the score
-			# topDishes = df.groupby('dish').compositeScore.sum().to_frame().reset_index()
-
-			# if len(topDishes):
-
-			# 	if debug:
-			# 		print topDishes
-
-			# 	topDishes['price'] = [dishDf[dishDf.name==topDish].price.values[0] for topDish in topDishes.dish]
-			# 	topDishes['description'] = [dishDf[dishDf.name==topDish].description.values[0] for topDish in topDishes.dish]
-
-			# 	topDishes['venueId'] = venue['id']
-
-			# 	topDishes = topDishes.to_dict(orient='records')
-
-			# else:
-			# 	topDishes = []
-
 		except:
 			raise
 			return []
@@ -497,11 +374,8 @@ class GeoDish:
 		return topDishes
 
 
-
 	def findTopDishesForLocation(self):
-		'''
-		'''
-		# get a list of top dishes from all venues
+		"""Get a list of top dishes from all venues."""
 		topDishes = []
 		for venue in self.venues.values():
 			topDishes += venue['topDishes']
@@ -509,53 +383,32 @@ class GeoDish:
 		# sort by composite score
 		topDishes = sorted(topDishes, key=lambda k: k['compositeScore'], reverse=True)
 
-		# for dish in topDishes:
-		# 	venueId = dish['venueId']
-		# 	dish['venueName'] = self.venues[venueId]['name']
-		# 	if 'location' in self.venues[venueId]:
-		# 		dish['location'] = self.venues[venueId]['location']
-		# 	if 'categories' in self.venues[venueId]:
-		# 		dish['venueCategories'] = self.venues[venueId]['categories']
-		# 	if 'url' in self.venues[venueId]:
-		# 		dish['venueUrl'] = self.venues[venueId]['url']
-		# 	if 'contact' in self.venues[venueId]:
-		# 		dish['contact'] = self.venues[venueId]['contact']
-
 		self.topDishes = topDishes
 
 
 	def locationString(self):
+		"""Return the geocoded location as a string"""
 		try:
 			return self.geocode['displayString']
 		except:
 			return u''
 
 	def locationId(self):
+		"""Return the id of the location"""
 		return urlsafe_b64encode(self.locationString().encode('utf8'))
 
 
 	def savePopularDishes(self, locationId, dishes):
-		'''
-		'''
 		self.cache.writePopularDishes(locationId, dishes)
 
 	def loadPopularDishes(self, locationId):
-		'''
-		'''
 		dishes = self.cache.readPopularDishes(locationId)
-		# if dishes is not None:
-		# 	dishes = sorted(dishes, key=lambda k: k['compositeScore'], reverse=True)
-		# else:
-		# 	dishes = []
 		if dishes is None:
 			return {}
 		return dishes
 
 	def locationHasCachedDishes(self, locationId):
-		'''
-		'''
 		return self.cache.locationHasCachedDishes(locationId)
-
 
 	def pushQueueData(self, data):
 		return self.cache.pushQueueData(data)
@@ -618,7 +471,6 @@ class Cache:
 			r = r['dishes']
 			if 'timestamp' in r:
 				del r['timestamp']
-			# r = r.values()
 		return r
 
 	def locationHasCachedDishes(self, locationId):

@@ -9,6 +9,9 @@ app = Flask(__name__)
 
 @app.route('/tasks/generateRecommendations', methods=['POST'])
 def generateRecommendations():
+	"""A task that takes a user's list of saved dishes and
+	generates a list of recommended dishes based on the list.
+	"""
 
 	dishfire = DishstarsFirebase()
 	
@@ -29,9 +32,11 @@ def generateRecommendations():
 		
 		locDishes.update(dishes)
 
-	dishrec = DishRecommender(likedDishes, locDishes)
+	# Get recommended dishes based on the users saved dish list.
+	dishrec = DishRecommender(locDishes)
 	recDishes = dishrec.recommendSimilarDishes(likedDishes, n=10, minSimilarity=.175)
 
+	# Save the dish recommendations
 	dishfire.writeUserRecommended(savedListId, recDishes)
 
 	return 'ok'
@@ -40,9 +45,11 @@ def generateRecommendations():
 
 @app.route('/tasks/processPopularDishes', methods=['POST'])
 def processPopularDishes():
+	"""A task that process the most popular dishes for a venue."""
 
 	geoDish = GeoDish()
 
+	# Get the data for this task from the tasks data queue
 	dataKey = json.loads(request.data)['dataKey']
 	data = geoDish.pullQueueData(dataKey)
 	if data is None:
@@ -50,9 +57,11 @@ def processPopularDishes():
 	venue = data[u'venue']
 	locationId = data[u'locationId']
 
+	# Find the top dishes for the venue/
 	geoDish = GeoDish()
 	popularDishes = geoDish.findTopDishesForVenue(venue)
 
+	# Save the top dishes.
 	if len(popularDishes) > 0:
 		geoDish.savePopularDishes(locationId, popularDishes)
 
