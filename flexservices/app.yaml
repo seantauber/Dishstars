@@ -3,5 +3,9 @@ runtime: python
 env: flex
 entrypoint: gunicorn -c gunicorn.conf.py -b :$PORT main:app
 
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 2
+
 health_check:
   enable_health_check: False
