@@ -26,7 +26,7 @@ class DishstarsFirebase:
 
 	def __init__(self):
 		"""Initialize connection to Firebase."""
-		self._BASEURL = FIREBASE_CFG['datebaseURL']
+		self._BASEURL = _FIREBASE_CFG['datebaseURL']
 		self._credentials = _firebase_credentials
 
 	def _access_token(self):
