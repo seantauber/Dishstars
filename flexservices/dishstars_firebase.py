@@ -26,7 +26,7 @@ class DishstarsFirebase:
 
 	def __init__(self):
 		"""Initialize connection to Firebase."""
-		self._BASEURL = _FIREBASE_CFG['datebaseURL']
+		self._BASEURL = _FIREBASE_CFG['databaseURL']
 		self._credentials = _firebase_credentials
 
 	def _access_token(self):
@@ -87,64 +87,64 @@ class DishstarsFirebase:
 	
 	def writeFoursquareMenu(self, venueId, data):
 		"""Save a venue's menu to the cache"""
-		url = self._BASEURL + "cache/foursquare/menu/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/menu/%s.json" % venueId
 		return self.putData(url, data)
 
 	def writeFoursquareTips(self, venueId, data):
 		"""Save a venue's tips to the cache"""
-		url = self._BASEURL + "cache/foursquare/tips/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/tips/%s.json" % venueId
 		return self.putData(url, data)
 
 	def writeGoogleNLPEntitySentiment(self, venueId, data):
 		"""Save a venue's entity sentiment results to the cache"""
-		url = self._BASEURL + "cache/foursquare/tipsEntitySentiment/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/tipsEntitySentiment/%s.json" % venueId
 		return self.putData(url, data)
 
 
 	def readFoursquareMenu(self, venueId):
 		"""Load a venue's menu from the cache"""
-		url = self._BASEURL + "cache/foursquare/menu/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/menu/%s.json" % venueId
 		return self.getData(url)
 
 	def readFoursquareTips(self, venueId):
 		"""Load a venue's tips from the cache"""
-		url = self._BASEURL + "cache/foursquare/tips/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/tips/%s.json" % venueId
 		return self.getData(url)
 
 	def readGoogleNLPEntitySentiment(self, venueId):
 		"""Load a venue's entity sentiment results from the cache"""
-		url = self._BASEURL + "cache/foursquare/tipsEntitySentiment/%s.json" % venueId
+		url = self._BASEURL + "/cache/foursquare/tipsEntitySentiment/%s.json" % venueId
 		return self.getData(url)
 
 
 	def writePopularDishes(self, locationId, dishes):
 		"""Save a list of popular dishes for the location."""
-		url = self._BASEURL + "cache/popularDishes/location/%s/dishes.json" % locationId
+		url = self._BASEURL + "/cache/popularDishes/location/%s/dishes.json" % locationId
 		# write a timestamp to location so we know when it was last refreshed.
-		self.patchData(self._BASEURL + "cache/popularDishes/location/%s.json" % locationId, {})
+		self.patchData(self._BASEURL + "/cache/popularDishes/location/%s.json" % locationId, {})
 		# Save all dishes with post to generate new keys for each one.
 		for dish in dishes:
 			self.postData(url, dish)
 
 	def readPopularDishes(self, locationId):
 		"""Load a list of popular dishes for the location."""
-		url = self._BASEURL + "cache/popularDishes/location/%s.json" % locationId
+		url = self._BASEURL + "/cache/popularDishes/location/%s.json" % locationId
 		return self.getData(url)
 
 	def readLocationCacheTimestamp(self, locationId):
 		"""Get the time that the popular dishes were last refreshed."""
-		url = self._BASEURL + "cache/popularDishes/location/%s/timestamp.json" % locationId
+		url = self._BASEURL + "/cache/popularDishes/location/%s/timestamp.json" % locationId
 		return self.getData(url)
 
 
 	def pushQueueData(self, data):
 		"""Save data to the queue data cache and return a reference key."""
-		url = self._BASEURL + "cache/queueData.json"
+		url = self._BASEURL + "/cache/queueData.json"
 		return self.postData(url, data)
 
 	def pullQueueData(self, key):
 		"""Load data from te queue data cache using the key."""
-		url = self._BASEURL + "cache/queueData/%s.json" % key
+		url = self._BASEURL + "/cache/queueData/%s.json" % key
 		data = self.getData(url)
 		self.deleteData(url)
 		return data
