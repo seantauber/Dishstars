@@ -8,7 +8,7 @@ from base64 import b64encode, b64decode, urlsafe_b64encode, urlsafe_b64decode
 
 app = Flask(__name__)
 
-
+#Nonsense
 @app.route('/', methods=['GET'])
 def mainPage():
 	demo = 0
@@ -34,7 +34,7 @@ def findDishes():
 	If dishes are not cached alread, initiates a task queue sequence that
 	will process the dishes for the location.
 
-	Returns info about the location so dishes can be retrieved 
+	Returns info about the location so dishes can be retrieved
 	via JS on the front end.
 	"""
 
@@ -65,7 +65,7 @@ def findDishes():
 
 @app.route('/results/location/<locationId>', methods=['GET'])
 def locationResults(locationId):
-	"""Render the the location results template 
+	"""Render the the location results template
 	along with some location info.
 	"""
 
@@ -102,7 +102,7 @@ def saveDishList():
 	taskData = {'likedDishes': likedDishes, 'locationIds': locationIds, 'savedListId': listKey}
 
 	# initiate recommend dishes task
-	taskqueue.add(url='/tasks/generateRecommendations', 
+	taskqueue.add(url='/tasks/generateRecommendations',
 		target='flxone',
 		payload=json.dumps(taskData))
 
@@ -229,7 +229,7 @@ def processEntitySentiment():
 	if len(entitySentiment) > 0:
 		data[u'venue'][u'entitySentiment'] = entitySentiment
 		dataKey = geoDish.pushQueueData(data)
-		taskqueue.add(url='/tasks/processPopularDishes', 
+		taskqueue.add(url='/tasks/processPopularDishes',
 			target='flxone',
 			payload=json.dumps({'dataKey': dataKey}))
 
