@@ -49,8 +49,3 @@ While this project is no longer active, I welcome feedback and discussions on si
 
 ## License
 This project is open-sourced under the MIT license.
-
-## Contact Information
-For inquiries or further information, please contact me at [Your Contact Email].
-
-Thank you for your interest in Dishstars!
